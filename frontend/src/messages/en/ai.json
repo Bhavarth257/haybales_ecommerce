@@ -1,0 +1,22 @@
+{
+  "open": "Ask Parali Setu",
+  "title": "Ask Parali Setu",
+  "close": "Close assistant",
+  "intro": "Ask me about selling stubble, prices or how the app works. Any language is fine.",
+  "starter1": "Mera price theek hai?",
+  "starter2": "How do I list stubble?",
+  "starter3": "Why not burn stubble?",
+  "suggestions": "Suggested questions",
+  "placeholder": "Type your question",
+  "inputLabel": "Your question",
+  "send": "Send",
+  "you": "You",
+  "assistant": "Parali Setu",
+  "typing": "Writing an answer…",
+  "error": "Could not get an answer. Check your connection and try again.",
+  "retry": "Try again",
+  "readAloud": "Read aloud",
+  "stop": "Stop",
+  "ttsError": "Could not play the audio.",
+  "disclaimer": "AI answers can be wrong. Never share your password, OTP or bank details."
+}

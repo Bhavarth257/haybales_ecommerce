@@ -1,0 +1,87 @@
+{
+  "nav": {
+    "browse": "Find stubble",
+    "farmer": "My farm",
+    "buyer": "My purchases",
+    "transporter": "Pickup jobs",
+    "admin": "Admin",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "profile": "Profile"
+  },
+  "roles": {
+    "farmer": "Farmer",
+    "buyer": "Buyer",
+    "transporter": "Transporter",
+    "admin": "Admin"
+  },
+  "crops": {
+    "paddy": "Paddy",
+    "wheat": "Wheat",
+    "sugarcane": "Sugarcane",
+    "cotton": "Cotton",
+    "maize": "Maize",
+    "other": "Other"
+  },
+  "forms": {
+    "baled": "Baled",
+    "loose": "Loose"
+  },
+  "listingStatus": {
+    "PENDING_APPROVAL": "Waiting for approval",
+    "ACTIVE": "Live",
+    "SOLD_OUT": "Sold out",
+    "CLOSED": "Closed",
+    "REJECTED": "Rejected"
+  },
+  "offerStatus": {
+    "PENDING": "Waiting for farmer",
+    "COUNTERED": "Counter offer",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected",
+    "WITHDRAWN": "Withdrawn"
+  },
+  "orderStatus": {
+    "AWAITING_TRANSPORT": "Finding transport",
+    "ASSIGNED": "Transporter assigned",
+    "PICKED_UP": "Picked up",
+    "DELIVERED": "Delivered",
+    "PAID": "Paid",
+    "CANCELLED": "Cancelled"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "loading": "Loading…"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "offline": "Can't reach Parali Setu. Check your internet and try again.",
+    "notVerified": "Your account is waiting for verification by the Parali Setu team.",
+    "needLogin": "Please log in to continue.",
+    "wrongRole": "This page is for {role} accounts."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "sub": "This link may be old or mistyped.",
+    "home": "Go to home page"
+  },
+  "footer": {
+    "help": "Need help? Write to us",
+    "madeFor": "Built for farmers of Punjab, Haryana and all of India."
+  },
+  "language": "Language",
+  "steps": {
+    "of": "Step {n} of {total}",
+    "next": "Continue",
+    "back": "Back"
+  },
+  "pager": {
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page {n} of {total}",
+    "first": "Start again"
+  }
+}
