@@ -1,0 +1,79 @@
+{
+  "hero": {
+    "title": "Don't burn your stubble. Sell it.",
+    "problem": "Every October and November, burning paddy stubble sends smoke across north India.",
+    "offer": "Parali Setu connects you with biomass plants, mills and feed makers who pay for it and pick it up.",
+    "ctaFarmer": "I'm a farmer: sell stubble",
+    "ctaBuyer": "I'm a buyer: find stubble",
+    "transporter": "Have a tractor-trolley or truck? Join as a transporter",
+    "artLabel": "A harvested field with round stubble bales under the sun"
+  },
+  "impact": {
+    "title": "Stubble that was not burnt",
+    "sub": "Live totals from every delivery made through Parali Setu.",
+    "tonnes": "Stubble collected",
+    "tonnesUnit": "tonnes kept out of the fire",
+    "co2": "CO₂ avoided",
+    "co2Unit": "tonnes",
+    "pm25": "PM2.5 avoided",
+    "pm25Unit": "kg of fine smoke particles",
+    "farmers": "Farmers paid",
+    "farmersUnit": "farmers",
+    "rupees": "Paid to farmers",
+    "rupeesUnit": "for stubble",
+    "sourcesTitle": "How we count",
+    "sources": "CO₂: 1.42 tonnes per tonne of residue burnt, derived from Jain et al. 2014, Aerosol and Air Quality Research 14:422. PM2.5: 8.3 kg per tonne of rice straw, Gadde et al. 2009, Environmental Pollution 157:1554. Counts only stubble delivered through Parali Setu.",
+    "error": "Could not load the impact numbers right now."
+  },
+  "how": {
+    "title": "How it works",
+    "farmer": {
+      "role": "Farmer",
+      "title": "List your stubble",
+      "body": "Add your crop, the rough quantity and your village. An admin checks it before it goes live."
+    },
+    "buyer": {
+      "role": "Buyer",
+      "title": "Offer and agree a price",
+      "body": "Buyers send an offer per tonne. The farmer accepts it, rejects it or sends back one counter price."
+    },
+    "transporter": {
+      "role": "Transporter",
+      "title": "Pick up and deliver",
+      "body": "A nearby transporter collects the bales from the field. The farmer is paid once the buyer receives them."
+    }
+  },
+  "price": {
+    "title": "A fair price, worked out in the open",
+    "body": "We suggest a price band for every listing so farmers are not underpaid and buyers are not overcharged.",
+    "regionTitle": "Your region",
+    "regionBody": "Stubble prices differ between districts of Punjab and Haryana.",
+    "distanceTitle": "Distance to buyers",
+    "distanceBody": "Farms close to plants and good roads get a better rate. Remote farms still get a fair floor.",
+    "deliveredTitle": "One delivered price",
+    "deliveredBody": "Buyers see one price per tonne that already includes pickup and transport. No hidden extras."
+  },
+  "buyers": {
+    "title": "Who buys stubble",
+    "body": "Power plants burn it for electricity, mills press it into board and paper, dairies feed it to cattle and mushroom farms grow on it.",
+    "biomass": "Biomass power plants",
+    "paper": "Paper and board mills",
+    "feed": "Cattle feed makers",
+    "mushroom": "Mushroom growers",
+    "packaging": "Packaging makers"
+  },
+  "final": {
+    "title": "This season, let the stubble earn instead of burn.",
+    "body": "Signing up is free. Choose how you want to take part."
+  },
+  "manifesto": {
+    "kicker": "Why it matters",
+    "text": "Burning one tonne of paddy straw puts about 1.4 tonnes of CO₂ and 8 kg of fine smoke into the air. Sold here, that tonne goes to a power plant or a mill instead."
+  },
+  "eyebrow": {
+    "impact": "Live impact",
+    "how": "Three people, one bale",
+    "price": "Fair price",
+    "buyers": "Who buys"
+  }
+}

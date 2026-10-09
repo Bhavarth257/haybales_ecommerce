@@ -1,0 +1,16 @@
+{
+  "title": "Pickup jobs",
+  "sub": "Choose the jobs you want. You earn the transport charge.",
+  "tabOpen": "Open jobs",
+  "tabMine": "My jobs",
+  "route": "{from} → {to}",
+  "earn": "You earn",
+  "fromYou": "{km} from your base",
+  "claim": "Take this job",
+  "claimed": "Job is yours. Call the farmer to fix a pickup time.",
+  "pickup": "Mark picked up",
+  "deliver": "Mark delivered",
+  "open": "Open job details",
+  "noOpen": "No open jobs right now. Check again soon.",
+  "noMine": "You haven't taken any jobs yet."
+}

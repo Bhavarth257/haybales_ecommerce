@@ -1,0 +1,21 @@
+{
+  "title": "Admin console",
+  "sub": "Approve listings, verify people, watch every order.",
+  "tabListings": "Listings",
+  "tabUsers": "People",
+  "tabOrders": "Orders",
+  "tabImpact": "Impact",
+  "approve": "Approve",
+  "reject": "Reject",
+  "verify": "Verify",
+  "unverify": "Remove verification",
+  "verified": "Verified",
+  "unverified": "Not verified",
+  "noPending": "No listings waiting for approval.",
+  "noUsers": "Nobody here yet.",
+  "noOrders": "No orders yet.",
+  "by": "by {name}",
+  "showVerified": "Show verified too",
+  "confirmReject": "Reject this listing? The farmer will have to list again.",
+  "confirmUnverify": "Remove verification? They will not be able to list, offer or take jobs."
+}

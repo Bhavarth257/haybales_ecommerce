@@ -1,0 +1,10 @@
+{
+  "state": "State",
+  "district": "District",
+  "village": "Village (optional)",
+  "choose": "Choose…",
+  "useGps": "Use my location",
+  "gpsError": "Couldn't get your location. Pick your district instead.",
+  "pinned": "Location set ({lat}, {lng})",
+  "noPin": "Pick a district or use your location."
+}

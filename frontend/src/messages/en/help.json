@@ -1,0 +1,10 @@
+{
+  "title": "Help",
+  "sub": "Write to the Parali Setu team. We reply by email.",
+  "subject": "What is it about?",
+  "message": "Your message",
+  "messageHint": "Any language is fine.",
+  "send": "Send message",
+  "sent": "Thanks! We got your message and will reply by email.",
+  "loginFirst": "Log in so we know who to reply to, or email us directly:"
+}
