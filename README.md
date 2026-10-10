@@ -73,6 +73,7 @@ npm run -s frontend-env                                # the 5 NEXT_PUBLIC_* val
    | `NEXT_PUBLIC_USER_POOL_ID` | `ParaliAuth.UserPoolId` |
    | `NEXT_PUBLIC_USER_POOL_CLIENT_ID` | `ParaliAuth.UserPoolClientId` |
    | `NEXT_PUBLIC_SUPPORT_EMAIL` | same as `supportEmail` in `infra/cdk.json` |
+   | `NEXT_PUBLIC_SITE_URL` | the Amplify app URL, e.g. `https://main.<appId>.amplifyapp.com` (sitemap, share previews) |
 
 5. Put the Amplify URL in `infra/cdk.json` → `appUrl` (it's used in email links), then run `npm run deploy` again.
 6. **Demo data:** `npm run seed` for the listings. Sign up an account in the app, then `USER_POOL_ID=<ParaliAuth.UserPoolId> npm run make-admin -- you@example.com`.
