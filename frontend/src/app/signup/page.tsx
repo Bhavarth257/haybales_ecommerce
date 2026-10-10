@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState, type FormEvent } from 'react';
 import { Button, Card, ErrorBox, Field, goToStep, Input, PageHeader, StepButtons, StepProgress } from '../../components/ui';
-import { HOME, useAuth } from '../../lib/auth';
+import { HOME, TOO_MANY_NAMES, useAuth } from '../../lib/auth';
 import { DEMO_AUTH } from '../../lib/config';
 import { Tx, useI18n } from '../../lib/i18n';
 
@@ -35,7 +35,7 @@ function Signup() {
     try {
       await fn();
     } catch (e) {
-      setError((e as Error).message || t('common.errors.generic'));
+      setError(TOO_MANY_NAMES.includes((e as Error).name) ? t('common.errors.tooMany') : (e as Error).message || t('common.errors.generic'));
     } finally {
       setBusy(false);
     }
@@ -88,6 +88,13 @@ function Signup() {
               <Field label={t('auth.email')}>{(p) => <Input {...p} type="email" autoComplete="email" required value={form.email} onChange={set('email')} />}</Field>
               <Field label={t('auth.phone')} hint="98765 43210">{(p) => <Input {...p} type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} />}</Field>
               <Field label={t('auth.password')} hint={t('auth.passwordHint')}>{(p) => <Input {...p} type="password" autoComplete="new-password" minLength={8} required value={form.password} onChange={set('password')} />}</Field>
+              <p className="text-sm text-muted">
+                {t('auth.agree').split(/(\{terms\}|\{privacy\})/).map((part) =>
+                  part === '{terms}' ? <Link key={part} href="/terms/" className="font-semibold text-field underline underline-offset-4">{t('common.footer.terms')}</Link>
+                  : part === '{privacy}' ? <Link key={part} href="/privacy/" className="font-semibold text-field underline underline-offset-4">{t('common.legal.privacyTitle')}</Link>
+                  : part,
+                )}
+              </p>
             </>
           )}
           <StepButtons step={formStep} total={2} onBack={() => goToStep(setFormStep, 0)} busy={busy} finalKey="auth.submitSignup" />

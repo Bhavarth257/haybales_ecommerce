@@ -216,7 +216,7 @@ h1.font-display {
 }
 @keyframes fill-word {
   from {
-    color: rgb(255 255 255 / 0.2);
+    color: rgb(255 255 255 / 0.55); /* still readable before it lights up (WCAG large text) */
   }
 }
 @keyframes drift {

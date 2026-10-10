@@ -6,6 +6,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { api, setTokenGetter } from './api';
 import { DEMO_AUTH, USER_POOL_CLIENT_ID, USER_POOL_ID } from './config';
 
+/** Error names Cognito (or our WAF rule in front of it) uses when sign-in attempts are rate limited. */
+export const TOO_MANY_NAMES = ['TooManyRequestsException', 'LimitExceededException', 'TooManyFailedAttemptsException'];
+
 if (!DEMO_AUTH) Amplify.configure({ Auth: { Cognito: { userPoolId: USER_POOL_ID, userPoolClientId: USER_POOL_CLIENT_ID } } });
 
 const DEMO_KEY = 'ps.demoUser';
