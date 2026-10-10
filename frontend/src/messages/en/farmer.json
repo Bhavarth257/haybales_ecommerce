@@ -63,7 +63,8 @@
     "photoFailed": "Photo upload failed. Please try again.",
     "submit": "Send for approval",
     "needPlace": "Please choose your state and district, or tap \"Use my location\".",
-    "created": "Listed! Our team will check it soon. Buyers can see it after approval."
+    "created": "Listed! Our team will check it soon. Buyers can see it after approval.",
+    "photoAlt": "Stubble photo {n}"
   },
   "listing": {
     "missing": "This listing was not found in your account.",
