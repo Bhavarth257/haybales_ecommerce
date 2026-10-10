@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
 import { Button, Card, ErrorBox, Field, Input, PageHeader } from '../../components/ui';
-import { DEMO_USERS, HOME, useAuth } from '../../lib/auth';
+import { DEMO_USERS, HOME, TOO_MANY_NAMES, useAuth } from '../../lib/auth';
 import { DEMO_AUTH } from '../../lib/config';
 import { Tx, useI18n } from '../../lib/i18n';
 
@@ -29,7 +29,7 @@ function Login() {
     try {
       await fn();
     } catch (e) {
-      setError((e as Error).message || t('common.errors.generic'));
+      setError(TOO_MANY_NAMES.includes((e as Error).name) ? t('common.errors.tooMany') : (e as Error).message || t('common.errors.generic'));
     } finally {
       setBusy(null);
     }

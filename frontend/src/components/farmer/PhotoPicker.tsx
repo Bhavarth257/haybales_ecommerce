@@ -47,7 +47,7 @@ export function PhotoPicker({ keys, onChange, onBusy }: { keys: string[]; onChan
           {keys.map((k, i) => (
             <li key={k} className="relative overflow-hidden rounded-xl border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element -- static export, CDN image */}
-              <img src={photoUrl(k)} alt="" className="aspect-square w-full object-cover" />
+              <img src={photoUrl(k)} alt={t('farmer.new.photoAlt', { n: i + 1 })} className="aspect-square w-full object-cover" />
               <button
                 type="button"
                 onClick={() => onChange(keys.filter((x) => x !== k))}

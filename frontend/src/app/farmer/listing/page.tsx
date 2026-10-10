@@ -179,10 +179,10 @@ function ListingView() {
                 )}
                 {l.photos.length > 0 && photoUrl(l.photos[0]) && (
                   <ul className="mt-4 grid grid-cols-2 gap-2">
-                    {l.photos.map((k) => (
+                    {l.photos.map((k, i) => (
                       <li key={k}>
                         {/* eslint-disable-next-line @next/next/no-img-element -- static export, CDN image */}
-                        <img src={photoUrl(k)} alt="" className="aspect-square w-full rounded-xl border border-line object-cover" loading="lazy" />
+                        <img src={photoUrl(k)} alt={t('farmer.new.photoAlt', { n: i + 1 })} className="aspect-square w-full rounded-xl border border-line object-cover" loading="lazy" />
                       </li>
                     ))}
                   </ul>

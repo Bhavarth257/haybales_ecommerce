@@ -1,6 +1,6 @@
 'use client';
 import type { ReactNode } from 'react';
-import { OFFLINE } from '../../lib/api';
+import { OFFLINE, TOO_MANY } from '../../lib/api';
 import { useI18n } from '../../lib/i18n';
 import { Button } from './Button';
 
@@ -18,7 +18,7 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () =
   const { t } = useI18n();
   return (
     <div className="rounded-xl border border-ember/30 bg-ember-soft p-4 text-ember" role="alert">
-      <p>{message === OFFLINE ? t('common.errors.offline') : message}</p>
+      <p>{message === OFFLINE || message === TOO_MANY ? t(`common.errors.${message}`) : message}</p>
       {onRetry && (
         <Button variant="secondary" className="mt-3" onClick={onRetry}>
           {t('common.actions.retry')}

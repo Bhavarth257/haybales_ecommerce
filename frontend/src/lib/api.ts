@@ -8,6 +8,8 @@ export class ApiError extends Error {
 
 /** Thrown message when the API can't be reached at all; ErrorBox shows a friendly, translated line. */
 export const OFFLINE = 'offline';
+/** Thrown message when the API's per-user rate limit says wait (429). */
+export const TOO_MANY = 'tooMany';
 
 let tokenGetter: () => Promise<string | null> = async () => null;
 /** Wired by AuthProvider so every call carries the current token. */
@@ -23,6 +25,7 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
     throw new ApiError(0, OFFLINE);
   });
   const data = await res.json().catch(() => null);
+  if (res.status === 429) throw new ApiError(429, TOO_MANY, data);
   if (!res.ok) throw new ApiError(res.status, data?.error ?? data?.message ?? `Request failed (${res.status})`, data);
   return data as T;
 }

@@ -74,7 +74,7 @@ The hi/pa/ta/te/ml/bgc bundles are empty right now, so every language falls back
 ## 6. Amplify Hosting (20–30 min)
 
 - [ ] Amplify console in **ap-south-1** → Create new app → GitHub → this repo, branch `main`. It picks up `amplify.yml` from the repo root. Don't tick "monorepo".
-- [ ] Get the env values: `npm run -s frontend-env`. Add all five as environment variables in the console (App settings → Environment variables).
+- [ ] Get the env values: `npm run -s frontend-env`. Add all five as environment variables in the console (App settings → Environment variables). Also add `NEXT_PUBLIC_SITE_URL` = the Amplify app URL (e.g. `https://main.<appId>.amplifyapp.com`); the sitemap, robots.txt and link previews use it.
 - [ ] Make sure the app is a static site. Next.js 16 static export goes to `frontend/out`, and Amplify's SSR compute only supports up to Next 15:
   ```bash
   aws amplify list-apps --region ap-south-1 --query 'apps[].[appId,platform]' --output text
@@ -115,13 +115,18 @@ The app bakes the API URL and Cognito ids in at build time (see `docs/MOBILE.md`
 
 ## 11. Guard rails (5 min)
 
-- [ ] AWS Budgets → monthly cost budget, $20, email alert. The AI routes are throttled to 3 req/s in total, but nothing caps a single user.
+- [ ] AWS Budgets → monthly cost budget, $20, email alert.
+- [ ] Rate limits are already on, nothing to set up:
+  - Every API route counts requests per signed-in user (per IP when signed out): 120 reads/min, 30 actions/min, 20 AI calls per 10 min. Over the limit returns 429 with `retry-after`. The counters live in the table as `RATE#` items, and DynamoDB TTL deletes them.
+  - Sign-in, sign-up and password reset: AWS WAF on the Cognito user pool allows 10 attempts per IP per 2 minutes (WAF's minimum, about 5 a minute). WAF costs about $6/month, covered by the credits.
+  - To check them: CloudWatch → Metrics → WAFV2 → `parali-auth-attempts` shows blocked sign-ins.
 
 ## If something fails
 
 - **CDK bootstrap or deploy says `SSM parameter /cdk-bootstrap/hnb659fds/version not found`:** the bootstrap went to a different account or region. Check `aws sts get-caller-identity` and `aws configure get region`, then repeat step 1. If it's `AccessDenied` on `iam:CreateRole`, your user needs `AdministratorAccess`. If a stack sits in `ROLLBACK_COMPLETE`, delete it in the CloudFormation console and deploy again.
 - **SES: emails don't arrive:** `aws sesv2 get-email-identity` shows `false` for the sender or the recipient. Re-send with `create-email-identity` (delete the identity first if it says it already exists), click the link and check spam. Send errors are logged in CloudWatch under the `ParaliNotify-OnChange…` function. A failed send never blocks an order.
 - **Bedrock: chat returns an error:** look at the CloudWatch log group of the `ParaliApi` function with `aichat` in its name. `AccessDeniedException` about model access means the Anthropic use-case form hasn't been filled in or approved yet (Bedrock console → Model catalog → Claude Haiku → submit, then wait a few minutes). `ValidationException` about the model identifier means the id isn't callable from ap-south-1: take one from the step 2 list and run `npx -w infra cdk deploy ParaliApi`.
+- **Deploy fails on `AuthWafLink` with `WAFUnavailableEntityException`:** the new web ACL hadn't reached Cognito yet. Wait a minute and run `npx -w infra cdk deploy ParaliAuth` again.
 - **Amplify build or env:** the build log shows `npm ci` failing → run `npm install` locally, commit `package-lock.json`, push. Deep links return 404, or the build "succeeds" but serves nothing → the platform is `WEB_COMPUTE`; switch it to `WEB` (step 6) and redeploy. Login shows demo accounts, or calls go to `localhost:4000` → the env vars are missing. They're baked in at build time, so add them and click **Redeploy this version**.
 
 ---
