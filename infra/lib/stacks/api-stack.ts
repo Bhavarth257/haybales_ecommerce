@@ -75,7 +75,8 @@ export class ApiStack extends Stack {
     stage.defaultRouteSettings = { throttlingRateLimit: 50, throttlingBurstLimit: 100 };
     // AI routes call paid models: much lower ceiling to cap Bedrock/Polly spend.
     stage.routeSettings = Object.fromEntries(
-      ['POST /ai/chat', 'POST /tts'].map((k) => [k, { throttlingRateLimit: 3, throttlingBurstLimit: 6 }]),
+      // routeSettings is raw JSON (not converted by CDK), so CloudFormation's PascalCase keys.
+      ['POST /ai/chat', 'POST /tts'].map((k) => [k, { ThrottlingRateLimit: 3, ThrottlingBurstLimit: 6 }]),
     );
     new CfnOutput(this, 'ApiUrl', { value: api.apiEndpoint });
   }

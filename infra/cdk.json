@@ -3,6 +3,7 @@
   "context": {
     "supportEmail": "arham535667@gmail.com",
     "appUrl": "http://localhost:3000",
+    "photosCdn": false,
     "bedrockModelId": "global.anthropic.claude-haiku-4-5-20251001-v1:0"
   }
 }

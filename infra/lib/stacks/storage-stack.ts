@@ -6,7 +6,7 @@ import type { Construct } from 'constructs';
 
 export class StorageStack extends Stack {
   readonly bucket: Bucket;
-  constructor(scope: Construct, id: string, props: StackProps & { appUrl: string }) {
+  constructor(scope: Construct, id: string, props: StackProps & { appUrl: string; photosCdn: boolean }) {
     super(scope, id, props);
     this.bucket = new Bucket(this, 'Photos', {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -17,9 +17,12 @@ export class StorageStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
-    const cdn = new Distribution(this, 'PhotosCdn', {
-      defaultBehavior: { origin: S3BucketOrigin.withOriginAccessControl(this.bucket), viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS },
-    });
-    new CfnOutput(this, 'PhotosCdnUrl', { value: `https://${cdn.distributionDomainName}` });
+    // New AWS accounts can't create CloudFront until verified: set context photosCdn=false to skip (photo upload is hidden).
+    const cdn = props.photosCdn
+      ? new Distribution(this, 'PhotosCdn', {
+          defaultBehavior: { origin: S3BucketOrigin.withOriginAccessControl(this.bucket), viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS },
+        })
+      : undefined;
+    new CfnOutput(this, 'PhotosCdnUrl', { value: cdn ? `https://${cdn.distributionDomainName}` : '' });
   }
 }
