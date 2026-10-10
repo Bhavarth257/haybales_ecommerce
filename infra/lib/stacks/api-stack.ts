@@ -50,6 +50,14 @@ export class ApiStack extends Stack {
         // No table access needed.
       } else if (r.method === 'GET' || r.fn === 'uploads/presign' || r.fn === 'support/send') props.table.grantReadData(fn);
       else props.table.grantReadWriteData(fn);
+      // Every route counts its caller's requests (lib/rateLimit.ts): write access to RATE# items only.
+      fn.addToRolePolicy(
+        new PolicyStatement({
+          actions: ['dynamodb:UpdateItem'],
+          resources: [props.table.tableArn],
+          conditions: { 'ForAllValues:StringLike': { 'dynamodb:LeadingKeys': ['RATE#*'] } },
+        }),
+      );
       if (r.fn === 'uploads/presign') props.bucket.grantPut(fn);
       if (r.fn === 'support/send') fn.addToRolePolicy(new PolicyStatement({ actions: ['ses:SendEmail'], resources: [sesArn] }));
       if (r.fn === 'ai/chat')

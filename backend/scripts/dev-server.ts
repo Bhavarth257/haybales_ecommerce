@@ -72,7 +72,7 @@ createServer(async (req, res) => {
     pathParameters: route.re.exec(url.pathname)?.groups,
     body: chunks.length ? Buffer.concat(chunks).toString() : undefined,
     isBase64Encoded: false,
-    requestContext: { http: { method: req.method }, authorizer: claims ? { jwt: { claims } } : undefined },
+    requestContext: { http: { method: req.method, sourceIp: req.socket.remoteAddress }, authorizer: claims ? { jwt: { claims } } : undefined },
   };
   const mod = await import(`../src/handlers/${route.fn}`);
   const out = await mod.handler(event);

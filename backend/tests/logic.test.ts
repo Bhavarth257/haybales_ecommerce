@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { liveListingStatus, nextOfferStatus, nextOrderStatus } from '../src/lib/state';
 import { agreedPrice, orderMoney, priceBand, quote, transportPerTonne } from '../src/lib/pricing';
 import { fuzz, haversineKm } from '../src/lib/geo';
+import { LIMITS, tierOf } from '../src/lib/rateLimit';
 import { listingSchema, offerSchema, roundTonnes } from '../src/validators';
 
 describe('offer state machine', () => {
@@ -131,5 +132,15 @@ describe('money flow for all three parties', () => {
     const far = priceBand('Punjab', { lat: 31.634, lng: 74.872 }, [patiala]); // Amritsar
     expect(far.suggested).toBeLessThan(near.suggested);
     expect(far.suggested + far.transportPerTonne).toBeGreaterThan(near.suggested + near.transportPerTonne);
+  });
+});
+
+describe('rate limit tiers', () => {
+  it('puts AI routes in the strict tier and splits the rest by method', () => {
+    expect(tierOf('POST', '/ai/chat')).toBe('ai');
+    expect(tierOf('POST', '/tts')).toBe('ai');
+    expect(tierOf('GET', '/listings')).toBe('read');
+    expect(tierOf('PATCH', '/jobs/x/status')).toBe('write');
+    expect(LIMITS.ai[0]).toBeLessThan(LIMITS.write[0]);
   });
 });

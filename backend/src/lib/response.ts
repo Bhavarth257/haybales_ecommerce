@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ZodError, type ZodTypeAny, type z } from 'zod';
+import { overLimit } from './rateLimit';
 
 export type Event = APIGatewayProxyEventV2WithJWTAuthorizer;
 export type Result = APIGatewayProxyResultV2;
@@ -26,9 +27,16 @@ export function parseBody<S extends ZodTypeAny>(event: Event, schema: S): z.infe
   return schema.parse(raw);
 }
 
-/** Wrap a handler: maps HttpError/ZodError to 4xx, anything else to a logged 500. */
+/** Wrap a handler: per-caller rate limit, then maps HttpError/ZodError to 4xx, anything else to a logged 500. */
 export function handler(fn: (event: Event) => Promise<Result>) {
   return async (event: Event): Promise<Result> => {
+    const wait = await overLimit(event);
+    if (wait)
+      return {
+        statusCode: 429,
+        headers: { 'content-type': 'application/json', 'retry-after': String(wait) },
+        body: JSON.stringify({ error: 'Too many requests. Please wait a moment and try again.', retryAfter: wait }),
+      };
     try {
       return await fn(event);
     } catch (e) {

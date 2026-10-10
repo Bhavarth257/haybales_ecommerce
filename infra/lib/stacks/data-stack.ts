@@ -13,6 +13,7 @@ export class DataStack extends Stack {
       sortKey: { name: 'SK', type: S },
       billingMode: BillingMode.PAY_PER_REQUEST,
       stream: StreamViewType.NEW_AND_OLD_IMAGES,
+      timeToLiveAttribute: 'expiresAt', // rate-limit counters expire on their own
       removalPolicy: RemovalPolicy.DESTROY, // hackathon: easy teardown
     });
     for (const n of [1, 2, 3])
