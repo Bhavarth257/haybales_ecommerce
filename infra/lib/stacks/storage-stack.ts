@@ -12,7 +12,7 @@ export class StorageStack extends Stack {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       encryption: BucketEncryption.S3_MANAGED,
       enforceSSL: true,
-      // shortcut: '*' allows uploads from localhost and the Amplify URL; pin to the real domain after deploy.
+      // TODO: '*' allows uploads from localhost and the Amplify URL; pin to the real domain after deploy.
       cors: [{ allowedMethods: [HttpMethods.POST], allowedOrigins: ['*'], allowedHeaders: ['*'] }],
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,

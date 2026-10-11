@@ -12,7 +12,7 @@ export const handler = wrap(async (event) => {
   const radiusKm = Number(q.radiusKm) || Infinity;
   const maxPrice = Number(q.maxPrice) || Infinity;
 
-  // shortcut: one query of all ACTIVE listings (paged in a loop) + filter in Lambda; fine under a few thousand listings.
+  // TODO: one query of all ACTIVE listings (paged in a loop) + filter in Lambda; fine under a few thousand listings.
   const items: Record<string, unknown>[] = [];
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {

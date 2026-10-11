@@ -9,7 +9,7 @@ export const handler = wrap(async (event) => {
   if (!q.state) throw new HttpError(400, 'state is required');
   const lat = Number(q.lat), lng = Number(q.lng);
   const at = q.lat && q.lng && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
-  // shortcut: reads all buyer profiles each call; cache or precompute once there are many buyers.
+  // TODO: reads all buyer profiles each call; cache or precompute once there are many buyers.
   const { Items = [] } = await db.send(
     new QueryCommand({
       TableName: TABLE,

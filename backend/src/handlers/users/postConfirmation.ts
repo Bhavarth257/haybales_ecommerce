@@ -27,7 +27,7 @@ export const handler = async (event: PostConfirmationTriggerEvent) => {
     createdAt: now(),
     dob: a.birthdate,
     // Signup refuses requests without the Terms + Privacy tick, so a confirmed account agreed to these versions.
-    // shortcut: `at` is the confirm time (minutes after the tick); store the tick time if a lawyer asks for it.
+    // TODO: `at` is the confirm time (minutes after the tick); store the tick time if a lawyer asks for it.
     consent: { termsVersion: LEGAL_VERSION, privacyVersion: LEGAL_VERSION, at: now() },
   };
   await db.send(

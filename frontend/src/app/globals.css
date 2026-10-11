@@ -83,7 +83,7 @@ body {
   }
 }
 
-/* ---- Apple-style polish (apple-design skill): type, materials, press feedback, scroll ---- */
+/* ---- Type, translucent materials, press feedback, scroll ---- */
 :root {
   --nav-h: 6.75rem; /* phone navbar is two rows */
 }
@@ -146,7 +146,7 @@ h1.font-display {
     }
   }
 }
-/* Statement words fill in as they scroll through the viewport (idea from threeui Oblo; CSS-only). */
+/* Statement words fill in as they scroll through the viewport (CSS-only). */
 .fill-word {
   color: #fff;
 }
@@ -189,7 +189,7 @@ h1.font-display {
   }
 }
 
-/* ---- high-end-visual-design pass ("Editorial Luxury"): heavy easing, grain, island nav, double bezel ---- */
+/* ---- Motion and depth: heavy easing, grain, island nav, double bezel ---- */
 :root {
   --ease-heavy: cubic-bezier(0.32, 0.72, 0, 1);
 }

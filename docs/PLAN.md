@@ -4,7 +4,7 @@
 The full decision record is in `docs/HANDOFF.md`.
 
 ## Phase 0 — Docs ✅
-- [x] Rewrite PRD, ARCHITECTURE, PLAN and CLAUDE.md for Parali Setu
+- [x] Write PRD, ARCHITECTURE and PLAN for Parali Setu
 
 ## Phase 1+2 — Scaffold, auth, data, API (one checkpoint)
 - [x] npm workspaces: `frontend`, `backend`, `infra`, `shared`

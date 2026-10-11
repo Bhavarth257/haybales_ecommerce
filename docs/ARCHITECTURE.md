@@ -40,7 +40,7 @@ Phone ─▶ Amplify (Next.js) ──login──▶ Cognito
 - Offer/order state machines: see PRD §3. Transitions are enforced in `backend/src/lib/state.ts` and unit-tested.
 - Accepting an offer runs a conditional transaction: it decrements the listing's tonnes and creates the order.
 - On `DELIVERED`, the totals in the `STATS/GLOBAL` item go up by atomic `ADD`.
-- Browse: query GSI2 `LSTATUS#ACTIVE`, optionally filtered by state prefix. Distance is filtered in Lambda with haversine (`shortcut: fine under a few thousand listings`).
+- Browse: query GSI2 `LSTATUS#ACTIVE`, optionally filtered by state prefix. Distance is filtered in Lambda with haversine (`TODO: fine under a few thousand listings`).
 
 ## 4. Pricing
 - Buyers see **one delivered price per tonne**, with a breakdown on tap: farmer price + transport (distance × ₹/t·km). *(Default; open question.)*

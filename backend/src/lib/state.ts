@@ -9,7 +9,7 @@ const OFFER_MOVES: Record<OfferAction, { by: 'farmer' | 'buyer'; from: OfferStat
     { by: 'buyer', from: ['COUNTERED'], to: 'ACCEPTED' },
   ],
   reject: [{ by: 'farmer', from: ['PENDING'], to: 'REJECTED' }],
-  // shortcut: one counter round only (farmer counters, buyer accepts or withdraws); add buyer re-counter if judges ask.
+  // TODO: one counter round only (farmer counters, buyer accepts or withdraws); add buyer re-counter if judges ask.
   counter: [{ by: 'farmer', from: ['PENDING'], to: 'COUNTERED' }],
   withdraw: [{ by: 'buyer', from: ['PENDING', 'COUNTERED'], to: 'WITHDRAWN' }],
 };

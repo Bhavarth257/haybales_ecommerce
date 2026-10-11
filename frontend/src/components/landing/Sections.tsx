@@ -69,7 +69,7 @@ export function HowItWorks() {
 
 const FACTORS = ['region', 'distance'] as const;
 
-/** Full-bleed statement whose words fill in as you scroll (reference: threeui Oblo manifesto). */
+/** Full-bleed statement whose words fill in as you scroll. */
 export function Manifesto() {
   const { t, en, locale } = useI18n();
   const words = t('landing.manifesto.text').split(' ');
@@ -100,10 +100,10 @@ export function FairPrice() {
         <p className="mt-3 max-w-[45ch] text-muted">{t('landing.price.body')}</p>
       </div>
       <dl className="space-y-3">
-        {FACTORS.map((f) => (
-          <div key={f} className="border-l-4 border-straw pl-4">
+        {FACTORS.map((f, i) => (
+          <div key={f} className={`rounded-xl p-4 ${i === 0 ? 'bg-straw-soft/70' : 'bg-sky-soft/70'}`}>
             <Tx k={`landing.price.${f}Title`} as="dt" className="font-semibold" />
-            <dd className="mt-0.5 text-muted">{t(`landing.price.${f}Body`)}</dd>
+            <dd className="mt-0.5 text-ink/80">{t(`landing.price.${f}Body`)}</dd>
           </div>
         ))}
         <div className="rounded-xl bg-field-soft p-4">

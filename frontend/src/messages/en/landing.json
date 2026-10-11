@@ -103,7 +103,7 @@
     "delhi": {
       "label": "Delhi's PM2.5 from stubble",
       "value": "Up to {n}%",
-      "unit": "on the worst day of 2024 (15 Nov), not the season average"
+      "unit": "on the smokiest November days, not the season average"
     },
     "worth": {
       "label": "What that straw is worth",
