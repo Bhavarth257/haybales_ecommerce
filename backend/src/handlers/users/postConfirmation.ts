@@ -1,6 +1,6 @@
 import { AdminAddUserToGroupCommand, CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { ROLE_GROUP, type Role, type User } from '@parali/shared';
+import { LEGAL_VERSION, ROLE_GROUP, type Role, type User } from '@parali/shared';
 import type { PostConfirmationTriggerEvent } from 'aws-lambda';
 import { db, now, TABLE } from '../../lib/db';
 import { userKey } from '../../lib/keys';
@@ -25,6 +25,10 @@ export const handler = async (event: PostConfirmationTriggerEvent) => {
     locale: a.locale ?? 'en',
     verified: false,
     createdAt: now(),
+    dob: a.birthdate,
+    // Signup refuses requests without the Terms + Privacy tick, so a confirmed account agreed to these versions.
+    // shortcut: `at` is the confirm time (minutes after the tick); store the tick time if a lawyer asks for it.
+    consent: { termsVersion: LEGAL_VERSION, privacyVersion: LEGAL_VERSION, at: now() },
   };
   await db.send(
     new PutCommand({

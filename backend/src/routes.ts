@@ -42,6 +42,7 @@ export const ROUTES: Route[] = [
   { method: 'GET', path: '/impact', fn: 'impact/get', auth: false },
   { method: 'GET', path: '/me', fn: 'users/getMe', auth: true },
   { method: 'PUT', path: '/me', fn: 'users/updateMe', auth: true },
+  { method: 'POST', path: '/me/delete', fn: 'users/deleteMe', auth: true },
   { method: 'GET', path: '/admin/users', fn: 'admin/listUsers', auth: true },
   { method: 'PATCH', path: '/admin/users/{id}', fn: 'admin/verifyUser', auth: true },
   { method: 'GET', path: '/admin/listings', fn: 'admin/listListings', auth: true },
