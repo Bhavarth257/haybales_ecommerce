@@ -21,6 +21,7 @@ const WRITES: Record<string, string[]> = {
   'jobs/claim': ['ORDER#*'],
   'jobs/updateStatus': ['ORDER#*', 'STATS'],
   'users/updateMe': ['USER#*'],
+  'users/deleteMe': ['USER#*', 'LISTING#*'], // anonymise profile, close own listings/offers
   'admin/verifyUser': ['USER#*'],
   'admin/reviewListing': ['LISTING#*'],
 };
@@ -42,7 +43,8 @@ export class ApiStack extends Stack {
       // Production is same-origin through the Amplify /api proxy, so CORS only matters for the direct API URL.
       // Credentialed CORS can't use wildcards, so origins and methods are listed (developer.mozilla.org/docs/Web/HTTP/Reference/Headers/Access-Control-Allow-Methods).
       corsPreflight: {
-        allowOrigins: [props.appUrl, 'capacitor://localhost', 'https://localhost'],
+        // Only the site itself: the Android/iOS apps send requests through CapacitorHttp (native, no CORS).
+        allowOrigins: [props.appUrl],
         allowCredentials: true,
         allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.POST, CorsHttpMethod.PUT, CorsHttpMethod.PATCH, CorsHttpMethod.DELETE, CorsHttpMethod.OPTIONS],
         allowHeaders: ['content-type', 'x-requested-with'],
@@ -86,6 +88,8 @@ export class ApiStack extends Stack {
       // *SoftwareToken, SetUserMFAPreference, RevokeToken, password flows), which take no IAM:
       // docs.aws.amazon.com/cognito/latest/developerguide/user-pools-API-operations.html#user-pool-apis-auth-unauth
       // The wrapper's TOTP gate on /admin/* calls AdminGetUser, which is IAM-authorized.
+      if (r.fn === 'users/deleteMe')
+        fn.addToRolePolicy(new PolicyStatement({ actions: ['cognito-idp:AdminDeleteUser'], resources: [props.userPool.userPoolArn] }));
       if (r.fn.startsWith('admin/'))
         fn.addToRolePolicy(new PolicyStatement({ actions: ['cognito-idp:AdminGetUser'], resources: [props.userPool.userPoolArn] }));
       // Every route counts its caller's requests (lib/rateLimit.ts): write access to RATE# items only.

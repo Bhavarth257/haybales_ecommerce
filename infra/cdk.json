@@ -1,9 +1,9 @@
 {
   "app": "npx tsx bin/app.ts",
   "context": {
-    "supportEmail": "arham535667@gmail.com",
-    "appUrl": "http://localhost:3000",
+    "supportEmail": "paralisetu@gmail.com",
+    "appUrl": "https://main.d241cf4tglqpuy.amplifyapp.com",
     "photosCdn": false,
-    "bedrockModelId": "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+    "bedrockModelId": "in.anthropic.claude-haiku-4-5-20251001-v1:0"
   }
 }
