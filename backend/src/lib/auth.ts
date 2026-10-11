@@ -7,7 +7,7 @@ export interface Caller {
   roles: Role[];
 }
 
-/** Read the Cognito JWT claims API Gateway already verified. */
+/** Read the access-token claims the handler wrapper verified from the __Host-ps_at cookie (no email in an access token). */
 export function caller(event: Event): Caller {
   const claims = event.requestContext.authorizer?.jwt?.claims;
   if (!claims?.sub) throw new HttpError(401, 'Not signed in');

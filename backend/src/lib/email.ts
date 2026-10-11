@@ -5,7 +5,7 @@ const FROM = process.env.SUPPORT_EMAIL ?? '';
 
 /** Best effort: SES sandbox rejects unverified recipients; log and carry on. */
 export async function sendEmail(to: string | string[], subject: string, text: string, replyTo?: string) {
-  if (!FROM) return console.warn('SUPPORT_EMAIL not set; skipping email', subject);
+  if (!FROM) return console.warn('SUPPORT_EMAIL not set; skipping email');
   try {
     await ses.send(
       new SendEmailCommand({
@@ -16,6 +16,7 @@ export async function sendEmail(to: string | string[], subject: string, text: st
       }),
     );
   } catch (e) {
-    console.warn('email failed', subject, (e as Error).message);
+    // Name only: SES rejection messages include the recipient address.
+    console.warn('email failed', (e as Error).name);
   }
 }

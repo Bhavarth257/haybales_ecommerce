@@ -1,5 +1,6 @@
 // Single source of truth for HTTP routes: used by infra (api-stack) and the local dev server.
-// `fn` is the handler path under src/handlers (without .ts).
+// `fn` is the handler path under src/handlers (without .ts). `auth: true` routes need the __Host-ps_at cookie;
+// the handler wrapper verifies it (API Gateway has no authorizer).
 export interface Route {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   path: string;
@@ -8,6 +9,17 @@ export interface Route {
 }
 
 export const ROUTES: Route[] = [
+  // Cookie auth (docs/AUTH.md). `auth: false`: these routes run before there is a session.
+  { method: 'POST', path: '/auth/signup', fn: 'auth/signup', auth: false },
+  { method: 'POST', path: '/auth/confirm', fn: 'auth/confirm', auth: false },
+  { method: 'POST', path: '/auth/resend', fn: 'auth/resend', auth: false },
+  { method: 'POST', path: '/auth/login', fn: 'auth/login', auth: false },
+  { method: 'POST', path: '/auth/admin/login', fn: 'auth/adminLogin', auth: false },
+  { method: 'POST', path: '/auth/mfa', fn: 'auth/mfa', auth: false },
+  { method: 'POST', path: '/auth/refresh', fn: 'auth/refresh', auth: false },
+  { method: 'POST', path: '/auth/logout', fn: 'auth/logout', auth: false },
+  { method: 'POST', path: '/auth/forgot', fn: 'auth/forgot', auth: false },
+  { method: 'POST', path: '/auth/reset', fn: 'auth/reset', auth: false },
   { method: 'GET', path: '/listings', fn: 'listings/list', auth: false },
   { method: 'GET', path: '/listings/{id}', fn: 'listings/get', auth: false },
   { method: 'POST', path: '/listings', fn: 'listings/create', auth: true },

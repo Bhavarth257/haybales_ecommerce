@@ -11,8 +11,8 @@ export const handler = wrap(async (event) => {
   await sendEmail(
     process.env.SUPPORT_EMAIL!,
     `[Help] ${subject}`,
-    `From: ${u?.name ?? ''} <${c.email ?? ''}> (${u?.role ?? c.roles.join(',')}, ${u?.phone ?? 'no phone'})\nUser: ${c.userId}\n\n${message}`,
-    c.email,
+    `From: ${u?.name ?? ''} <${u?.email ?? ''}> (${u?.role ?? c.roles.join(',')}, ${u?.phone ?? 'no phone'})\nUser: ${c.userId}\n\n${message}`,
+    u?.email,
   );
   return json(202, { ok: true });
 });

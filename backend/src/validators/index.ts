@@ -1,13 +1,16 @@
 import { z } from 'zod';
 import { CROPS, FORMS } from '@parali/shared';
 
+/** Path ids: Cognito subs and UUIDs (plus seed ids like demo-listing-01). */
+export const idSchema = z.string().regex(/^[A-Za-z0-9-]{1,64}$/);
+
 const text = (max: number) => z.string().trim().min(1).max(max);
 
 /** Tonnes are kept to 2 decimals (10 kg) so subtraction never leaves 3.1999999 behind. */
 export const roundTonnes = (t: number) => Math.round(t * 100) / 100;
 const tonnes = z.number().min(0.01).max(10000).transform(roundTonnes);
 
-export const placeSchema = z.object({
+const placeSchema = z.object({
   lat: z.number().min(6).max(38), // India bounding box
   lng: z.number().min(68).max(98),
   village: text(80).optional(),

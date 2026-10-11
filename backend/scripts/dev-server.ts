@@ -1,10 +1,8 @@
 // Local API: runs the real Lambda handlers against DynamoDB Local. Not deployed.
-// Auth is emulated: send `Authorization: Bearer dev:<userId>`; the user's role comes from their profile.
+// Run with AUTH_MODE=local: cookie sessions use locally signed tokens (docs/AUTH.md, "Local mode").
 import { CreateTableCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { ROLE_GROUP, type Role } from '@parali/shared';
 import { createServer } from 'http';
-import { db, TABLE } from '../src/lib/db';
+import { TABLE } from '../src/lib/db';
 import { ROUTES } from '../src/routes';
 
 const PORT = Number(process.env.PORT ?? 4000);
@@ -41,18 +39,13 @@ async function ensureTable() {
 
 const compiled = ROUTES.map((r) => ({ ...r, re: new RegExp('^' + r.path.replace(/\{(\w+)\}/g, '(?<$1>[^/]+)') + '$') }));
 
-async function claimsFor(auth: string | undefined) {
-  const id = auth?.match(/^Bearer dev:(.+)$/)?.[1];
-  if (!id) return null;
-  const { Item } = await db.send(new GetCommand({ TableName: TABLE, Key: { PK: `USER#${id}`, SK: 'PROFILE' } }));
-  if (!Item) return null;
-  return { sub: id, email: Item.email, 'cognito:groups': `[${ROLE_GROUP[Item.role as Role]}]` };
-}
-
+// Only the local web app, with credentials (cookies).
 const CORS = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-headers': 'authorization, content-type',
+  'access-control-allow-origin': 'http://localhost:3000',
+  'access-control-allow-credentials': 'true',
+  'access-control-allow-headers': 'content-type, x-requested-with',
   'access-control-allow-methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  vary: 'Origin',
 };
 
 createServer(async (req, res) => {
@@ -63,20 +56,22 @@ createServer(async (req, res) => {
 
   const chunks: Buffer[] = [];
   for await (const c of req) chunks.push(c as Buffer);
-  const claims = await claimsFor(req.headers.authorization);
-  if (route.auth && !claims) return res.writeHead(401, CORS).end(JSON.stringify({ message: 'Unauthorized' }));
-
+  // Shaped like an API Gateway HTTP API (v2) event: lowercased headers, cookies as a separate array.
+  const headers = Object.fromEntries(Object.entries(req.headers).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v]));
   const event = {
+    routeKey: `${route.method} ${route.path}`,
     rawPath: url.pathname,
+    headers,
+    cookies: req.headers.cookie?.split(';').map((c) => c.trim()).filter(Boolean),
     queryStringParameters: url.search ? Object.fromEntries(url.searchParams) : undefined,
     pathParameters: route.re.exec(url.pathname)?.groups,
     body: chunks.length ? Buffer.concat(chunks).toString() : undefined,
     isBase64Encoded: false,
-    requestContext: { http: { method: req.method, sourceIp: req.socket.remoteAddress }, authorizer: claims ? { jwt: { claims } } : undefined },
+    requestContext: { http: { method: req.method, sourceIp: req.socket.remoteAddress } },
   };
   const mod = await import(`../src/handlers/${route.fn}`);
   const out = await mod.handler(event);
-  res.writeHead(out.statusCode, { ...CORS, ...out.headers }).end(out.body);
+  res.writeHead(out.statusCode, { ...CORS, ...out.headers, ...(out.cookies ? { 'set-cookie': out.cookies } : {}) }).end(out.body);
   console.log(req.method, url.pathname, out.statusCode);
 }).listen(PORT, async () => {
   await ensureTable();
