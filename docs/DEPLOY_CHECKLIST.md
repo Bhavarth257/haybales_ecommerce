@@ -72,7 +72,7 @@ Read this before step 0. The goal is to spend credits only, never card money.
 
 The account starts in the SES sandbox, which means it can only send to verified addresses.
 
-- [ ] Click the verification link AWS sent to `supportEmail` (`arham535667@gmail.com`). Check spam.
+- [ ] Click the verification link AWS sent to `supportEmail` (`paralisetu@gmail.com`). Check spam.
 - [ ] Verify the inbox of every real account you'll use in the demo (farmer, buyer, transporter, admin). Each one gets a link to click:
   ```bash
   aws sesv2 create-email-identity --region ap-south-1 --email-identity someone@gmail.com

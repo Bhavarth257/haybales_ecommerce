@@ -128,7 +128,7 @@ At the end of each phase, rebuild the `/graphify` graph (`graphify-out/`) and qu
 
 ## 12. Open questions (resolved 2026-10-10)
 - Transport cost: the buyer sees one delivered ₹/tonne (farmer price + transport), with a breakdown on tap.
-- Support email: `arham535667@gmail.com` (passed as CDK context `supportEmail`; must be SES-verified).
+- Support email: `paralisetu@gmail.com` (passed as CDK context `supportEmail`; must be SES-verified).
 - Region: `ap-south-1` for latency.
 - Read-aloud voices: Hindi and English only.
 

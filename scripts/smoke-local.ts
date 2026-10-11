@@ -39,9 +39,15 @@ function check(name: string, ok: boolean, extra: unknown = '') {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}`, ok ? '' : JSON.stringify(extra));
 }
 const PW = 'Kheti2026pass';
+const ADULT = { dob: '1990-05-01', adult: true, consent: true };
+/** Today in India minus `years`, as YYYY-MM-DD. */
+const yearsAgo = (years: number) => {
+  const d = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
+  return `${Number(d.slice(0, 4)) - years}${d.slice(4)}`;
+};
 
 async function join(a: Actor, role: string, name: string) {
-  const s = await call(a, 'POST', '/auth/signup', { email: a.email, password: PW, name, role });
+  const s = await call(a, 'POST', '/auth/signup', { email: a.email, password: PW, name, role, ...ADULT });
   if (s.status !== 200) check(`signup ${name}`, false, s.data);
 }
 async function login(a: Actor, path = '/auth/login') {
@@ -64,15 +70,26 @@ async function login(a: Actor, path = '/auth/login') {
   const farmer = actor('farmer'), farmer2 = actor('farmer2'), buyer = actor('buyer'), buyer2 = actor('buyer2');
   const tr = actor('transporter'), tr2 = actor('transporter2'), admin = actor('admin');
 
-  const noCsrf = await call(farmer, 'POST', '/auth/signup', { email: farmer.email, password: PW, name: 'Gurpreet', role: 'farmer' }, { csrf: false });
+  const noCsrf = await call(farmer, 'POST', '/auth/signup', { email: farmer.email, password: PW, name: 'Gurpreet', role: 'farmer', ...ADULT }, { csrf: false });
   check('signup without x-requested-with -> 403', noCsrf.status === 403, noCsrf);
-  const asAdmin = await call(admin, 'POST', '/auth/signup', { email: admin.email, password: PW, name: 'Sneaky', role: 'admin' });
+  const asAdmin = await call(admin, 'POST', '/auth/signup', { email: admin.email, password: PW, name: 'Sneaky', role: 'admin', ...ADULT });
   check('signup cannot pick admin role', asAdmin.status === 400, asAdmin.data);
 
-  const signup = await call(farmer, 'POST', '/auth/signup', { email: farmer.email, password: PW, name: 'Gurpreet Singh', role: 'farmer' });
+  const signup = await call(farmer, 'POST', '/auth/signup', { email: farmer.email, password: PW, name: 'Gurpreet Singh', role: 'farmer', ...ADULT });
   check('signup (local: next=login)', signup.status === 200 && signup.data.next === 'login', signup.data);
-  const again = await call(farmer2, 'POST', '/auth/signup', { email: farmer.email, password: 'Other2026pass', name: 'X', role: 'buyer' });
+  const again = await call(farmer2, 'POST', '/auth/signup', { email: farmer.email, password: 'Other2026pass', name: 'X', role: 'buyer', ...ADULT });
   check('signup with a taken email answers the same', again.status === 200 && again.data.next === 'login', again.data);
+  // --- Age gate + consent (DPDP: under 18 is a child) -----------------------------------------
+  const kid = actor('kid');
+  const under = await call(kid, 'POST', '/auth/signup', { email: kid.email, password: PW, name: 'Kid', role: 'farmer', ...ADULT, dob: yearsAgo(17) });
+  check('under-18 signup rejected with guardian route', under.status === 400 && /parent or guardian/.test(under.data?.error), under.data);
+  const noTick = await call(kid, 'POST', '/auth/signup', { email: kid.email, password: PW, name: 'Kid', role: 'farmer', dob: '1990-05-01', adult: true });
+  check('signup without consent tick rejected', noTick.status === 400, noTick.data);
+  const eighteen = actor('eighteen');
+  const ok18 = await call(eighteen, 'POST', '/auth/signup', { email: eighteen.email, password: PW, name: 'Just Eighteen', role: 'buyer', ...ADULT, dob: yearsAgo(18) });
+  check('18 today: signup accepted', ok18.status === 200, ok18.data);
+  check('under-18 kept no account', (await call(kid, 'POST', '/auth/login', { email: kid.email, password: PW })).status === 401);
+
   await join(farmer2, 'farmer', 'Naveen Malik');
   await join(buyer, 'buyer', 'Amandeep Gill');
   await join(buyer2, 'buyer', 'Rohit Sharma');
@@ -87,6 +104,8 @@ async function login(a: Actor, path = '/auth/login') {
   const fl = await login(farmer);
   check('login sets httpOnly Secure SameSite=Strict cookies', fl.status === 200 && fl.cookies.some((c) => /^__Host-ps_at=.+HttpOnly; Secure; SameSite=Strict/.test(c)) && farmer.jar.has('__Host-ps_rt'), fl.cookies);
   check('GET /me with cookie', !!farmer.id);
+  const fme = (await call(farmer, 'GET', '/me')).data;
+  check('consent + dob saved on profile', fme?.dob === ADULT.dob && fme?.consent?.termsVersion === '2026-10-11' && fme.consent.privacyVersion === '2026-10-11' && !!fme.consent.at, fme);
   for (const a of [farmer2, buyer, buyer2, tr, tr2]) await login(a);
 
   const wrongPw = await call(actor('probe'), 'POST', '/auth/login', { email: farmer.email, password: 'Wrong2026pass' });
@@ -176,6 +195,28 @@ async function login(a: Actor, path = '/auth/login') {
   check('buyer cancels before pickup', (await call(buyer2, 'POST', `/orders/${acc2.data.order.orderId}/cancel`)).data?.status === 'CANCELLED');
   const reopened = await call(null, 'GET', `/listings/${id}`);
   check('listing re-opened with tonnes back', reopened.data.status === 'ACTIVE' && reopened.data.tonnesLeft === 5, reopened.data);
+  // --- Delete my account (DPDP right to erasure) ------------------------------------------------
+  const leaver = actor('leaver');
+  await join(leaver, 'buyer', 'Leaving Buyer');
+  await login(leaver);
+  await call(admin, 'PATCH', `/admin/users/${leaver.id}`, { verified: true });
+  await call(leaver, 'PUT', '/me', place('Patiala', 'Punjab', 30.34, 76.386));
+  const lo = await call(leaver, 'POST', `/listings/${id}/offers`, { tonnes: 1, pricePerTonne: 1800 });
+  const lacc = await call(farmer, 'PATCH', `/listings/${id}/offers/${lo.data?.offerId}`, { action: 'accept' });
+  check('delete needs typed DELETE', (await call(leaver, 'POST', '/me/delete', { confirm: 'delete' })).status === 400);
+  check('delete needs x-requested-with', (await call(leaver, 'POST', '/me/delete', { confirm: 'DELETE' }, { csrf: false })).status === 403);
+  const blocked = await call(leaver, 'POST', '/me/delete', { confirm: 'DELETE' });
+  check('delete refused while an order is in progress', blocked.status === 409 && /in progress/.test(blocked.data?.error), blocked.data);
+  await call(leaver, 'POST', `/orders/${lacc.data?.order?.orderId}/cancel`);
+  const pend = await call(leaver, 'POST', `/listings/${id}/offers`, { tonnes: 2, pricePerTonne: 1750 });
+  const del = await call(leaver, 'POST', '/me/delete', { confirm: 'DELETE' });
+  check('delete my account clears cookies', del.status === 200 && leaver.jar.size === 0, del.data);
+  check('deleted user cannot log in', (await call(leaver, 'POST', '/auth/login', { email: leaver.email, password: PW })).status === 401);
+  const offersNow = (await call(farmer, 'GET', `/listings/${id}/offers`)).data?.items ?? [];
+  check('their open offer was withdrawn', offersNow.find((o: any) => o.offerId === pend.data?.offerId)?.status === 'WITHDRAWN', offersNow);
+  const gone = (await call(admin, 'GET', '/admin/users?role=buyer')).data?.items?.find((u: any) => u.userId === leaver.id);
+  check('profile anonymised', gone?.name === 'Deleted user' && gone.deleted === true && !gone.email && !gone.phone && !gone.place, gone);
+
   check('bad body rejected by zod', (await call(farmer, 'POST', '/listings', { tonnes: -5 })).status === 400);
 
   // --- Session lifecycle ----------------------------------------------------------------------
