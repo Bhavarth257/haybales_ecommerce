@@ -5,7 +5,7 @@ import { handler as wrap, json } from '../../lib/response';
 
 export const handler = wrap(async (event) => {
   requireRole(event, 'admin');
-  // shortcut: Scan with a filter; add an orders-by-date index past a few thousand items.
+  // TODO: Scan with a filter; add an orders-by-date index past a few thousand items.
   const items: Record<string, unknown>[] = [];
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {

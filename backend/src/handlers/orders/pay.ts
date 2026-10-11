@@ -7,7 +7,7 @@ import { orderMoney } from '../../lib/pricing';
 import { handler as wrap, HttpError, json } from '../../lib/response';
 import { nextOrderStatus } from '../../lib/state';
 
-// shortcut: mock payment (marks PAID). Swap in a real gateway in the next draft.
+// TODO: mock payment (marks PAID). Swap in a real gateway in the next draft.
 export const handler = wrap(async (event) => {
   const { userId } = requireRole(event, 'buyer');
   const o = await getOrder(pathParam(event, 'id'));

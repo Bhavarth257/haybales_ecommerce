@@ -9,3 +9,11 @@ cdk.out/
 graphify-out/cache/
 graphify-out/.graphify_*
 cdk-outputs.json
+
+# Local working notes and tooling output (not part of the app)
+CLAUDE.md
+frontend/AGENTS.md
+frontend/CLAUDE.md
+docs/HANDOFF.md
+graphify-out/
+screens/

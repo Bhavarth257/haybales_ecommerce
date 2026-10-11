@@ -17,7 +17,7 @@ export const handler = wrap(async (event) => {
   if (patch.status && !['ACTIVE', 'CLOSED'].includes(old.status)) throw new HttpError(409, `Cannot change status while ${old.status}`);
   // Re-opening is only for listings an admin already approved.
   if (patch.status === 'ACTIVE' && !old.approvedAt) throw new HttpError(409, 'Listing is waiting for approval');
-  // shortcut: edits to an approved listing are not re-reviewed; add re-approval if abuse shows up.
+  // TODO: edits to an approved listing are not re-reviewed; add re-approval if abuse shows up.
 
   const sold = roundTonnes(old.tonnes - old.tonnesLeft);
   const tonnes = patch.tonnes ?? old.tonnes;

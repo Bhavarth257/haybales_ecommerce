@@ -57,7 +57,7 @@ export const handler = wrap(async (event) => {
       `You have ${open.length} order(s) still in progress. Finish or cancel them first, so the other people in the deal are not left waiting. Then delete your account.`,
     );
 
-  // shortcut: an offer accepted between the check above and the closes below still makes an order; a transaction would fix it if that ever happens.
+  // TODO: an offer accepted between the check above and the closes below still makes an order; a transaction would fix it if that ever happens.
   for (const l of mine.filter((i) => i.entity === 'LISTING') as unknown as Listing[])
     if (['ACTIVE', 'SOLD_OUT', 'PENDING_APPROVAL'].includes(l.status)) await setStatus(listingKey(l.listingId), l.status, 'CLOSED', { GSI2PK: 'LSTATUS#CLOSED' });
   for (const o of mine.filter((i) => i.entity === 'OFFER') as unknown as Offer[])
