@@ -11,6 +11,7 @@ const messages: Record<string, unknown> = {
     "loginFirst": "ਲੌਗ ਇਨ ਕਰੋ ਤਾਂ ਜੋ ਸਾਨੂੰ ਪਤਾ ਲੱਗੇ ਕਿ ਜਵਾਬ ਕਿਸ ਨੂੰ ਦੇਣਾ ਹੈ, ਜਾਂ ਸਾਨੂੰ ਸਿੱਧਾ ਈਮੇਲ ਕਰੋ:"
   },
   "auth": {
+    "ageIs": "ਉਮਰ: {n} ਸਾਲ",
     "phone": "ਫ਼ੋਨ ਨੰਬਰ",
     "signupTitle": "ਆਪਣਾ ਖਾਤਾ ਬਣਾਓ",
     "name": "ਪੂਰਾ ਨਾਮ",

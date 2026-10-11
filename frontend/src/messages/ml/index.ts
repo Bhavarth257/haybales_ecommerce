@@ -268,6 +268,7 @@ const messages: Record<string, unknown> = {
     "hide": "മറയ്ക്കുക"
   },
   "auth": {
+    "ageIs": "പ്രായം: {n} വയസ്സ്",
     "email": "ഇമെയിൽ",
     "phone": "ഫോൺ നമ്പർ",
     "password": "പാസ്വേഡ്",

@@ -290,6 +290,7 @@ const messages: Record<string, unknown> = {
     "hide": "மறை"
   },
   "auth": {
+    "ageIs": "வயது: {n} ஆண்டுகள்",
     "email": "மின்னஞ்சல்",
     "loginTitle": "உள்நுழைக",
     "signupTitle": "உங்கள் கணக்கை உருவாக்கவும்",

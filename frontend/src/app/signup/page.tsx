@@ -10,7 +10,7 @@ import { Tx, useI18n } from '../../lib/i18n';
 type SelfRole = Exclude<Role, 'admin'>;
 const ROLES: SelfRole[] = ['farmer', 'buyer', 'transporter'];
 const link = 'font-semibold text-field underline underline-offset-4';
-const check = 'flex min-h-12 cursor-pointer items-start gap-3 py-2';
+const check = 'flex min-h-11 cursor-pointer items-center gap-2.5 py-1 text-sm text-muted';
 
 
 function Signup() {
@@ -28,7 +28,6 @@ function Signup() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resent, setResent] = useState(false);
-  const [minor, setMinor] = useState(false);
 
   useEffect(() => {
     if (me) router.replace(HOME[me.role]);
@@ -47,13 +46,15 @@ function Signup() {
     }
   };
 
+  // Age is worked out as soon as a date is picked, so an under-18 sees the guardian route before submitting.
+  const age = /^\d{4}-\d{2}-\d{2}$/.test(form.dob) ? ageOn(form.dob, todayIST()) : null;
+  const minor = age != null && age < 18;
+
   // Step 1 picks the role, step 2 collects details and creates the account.
   const onFormSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (formStep === 0) return goToStep(setFormStep, 1);
-    const under18 = !!form.dob && ageOn(form.dob, todayIST()) < 18;
-    setMinor(under18);
-    if (under18) return;
+    if (minor) return;
     run(async () => {
       // Local dev mode auto-confirms, so the account can log in straight away.
       if ((await signUp({ role, ...form, phone: form.phone || undefined, adult, consent })) === 'login') await signIn(form.email, form.password);
@@ -93,17 +94,18 @@ function Signup() {
               <Field label={t('auth.dob')} hint={t('auth.dobHint')}>
                 {(p) => <Input {...p} type="date" autoComplete="bday" required min="1900-01-01" max={new Date().toISOString().slice(0, 10)} value={form.dob} onChange={set('dob')} />}
               </Field>
+              {age != null && !minor && age < 120 && <p className="-mt-2 text-sm text-muted" aria-live="polite">{t('auth.ageIs', { n: age })}</p>}
               {minor && (
                 <p className="rounded-xl border border-straw/40 bg-straw-soft px-4 py-3 text-[#6b4a0c]" role="alert">
                   {t('auth.under18')} <Link href="/help/" className={link}>{t('common.footer.help')}</Link>
                 </p>
               )}
               <label className={check}>
-                <input type="checkbox" required checked={adult} onChange={(e) => setAdult(e.target.checked)} className="mt-0.5 size-6 shrink-0 accent-[#2f5d34]" />
+                <input type="checkbox" required checked={adult} onChange={(e) => setAdult(e.target.checked)} className="size-4 shrink-0 accent-[#2f5d34]" />
                 <span>{t('auth.adult')}</span>
               </label>
               <label className={check}>
-                <input type="checkbox" required checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 size-6 shrink-0 accent-[#2f5d34]" />
+                <input type="checkbox" required checked={consent} onChange={(e) => setConsent(e.target.checked)} className="size-4 shrink-0 accent-[#2f5d34]" />
                 <span>
                   {t('auth.agree').split(/(\{terms\}|\{privacy\})/).map((part) =>
                     part === '{terms}' ? <Link key={part} href="/terms/" className={link}>{t('common.footer.terms')}</Link>
