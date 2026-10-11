@@ -51,16 +51,24 @@ body {
   line-height: 1.5;
 }
 
-/* Visible keyboard focus everywhere. */
+/* Visible keyboard focus everywhere, in the brand green (no orange box). */
 :focus-visible {
-  outline: 3px solid var(--color-straw);
+  outline: 2px solid var(--color-field);
   outline-offset: 2px;
 }
+/* Language picker: no orange focus ring; keyboard focus shows as a green border on the pill. */
+.lang-pill select:focus-visible {
+  outline: none;
+}
+.lang-pill:has(select:focus-visible) {
+  border-color: var(--color-field); /* quiet green border instead of the orange focus ring */
+}
 
-/* Phone: lift the assistant button above the sticky Back / Continue bar so it never covers it. */
+/* Phone: hide the assistant button during step-by-step forms. On short steps the Back / Continue bar
+   sits mid-screen, so no fixed offset can keep the floating button off it. */
 @media (max-width: 639px) {
   body:has(.step-bar) [aria-controls="ai-panel"] {
-    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    display: none;
   }
 }
 
@@ -282,7 +290,11 @@ h1.font-display {
 
 /* Tailwind v4 resets buttons/selects to cursor:default; restore the hand on everything clickable */
 @layer base {
-  button:not(:disabled), select:not(:disabled), summary, [role='button'], input[type='checkbox'], input[type='radio'], label:has(> input[type='checkbox']) { cursor: pointer; }
+  button:not(:disabled), select:not(:disabled), summary, [role='button'], input[type='checkbox'], input[type='radio'],
+  input[type='file'], input[type='file']::file-selector-button, input[type='date']::-webkit-calendar-picker-indicator,
+  label:has(input[type='checkbox']), label:has(input[type='radio']), label:has(input[type='file']), label:has(select) { cursor: pointer; }
+  /* Unavailable controls say so instead of looking dead. */
+  button:disabled, select:disabled, input:disabled { cursor: not-allowed; }
 }
 
 /*

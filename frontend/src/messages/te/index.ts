@@ -176,6 +176,7 @@ const messages: Record<string, unknown> = {
     "disclaimer": "AI సమాధానాలు తప్పు కావచ్చు. మీ పాస్వర్డ్, OTP లేదా బ్యాంక్ వివరాలను ఎప్పుడూ షేర్ చేయవద్దు."
   },
   "auth": {
+    "ageIs": "వయస్సు: {n} సంవత్సరాలు",
     "password": "పాస్వర్డ్",
     "phone": "ఫోన్ నంబర్",
     "chooseRole": "నేను ఒక...",

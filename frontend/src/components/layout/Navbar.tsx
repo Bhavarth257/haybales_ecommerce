@@ -18,9 +18,9 @@ function LanguagePicker() {
   };
   return (
     // One pill: the globe and the select share a label, so tapping the globe focuses the select.
-    <label className="flex min-h-10 cursor-pointer items-center gap-1 rounded-full border border-line bg-surface pl-2.5 pr-1 text-sm focus-within:border-field focus-within:ring-2 focus-within:ring-field/25" onClick={open}>
+    <label className="lang-pill flex min-h-10 cursor-pointer items-center gap-1 rounded-full border border-line bg-surface pl-2.5 pr-1 text-sm" onClick={open}>
       <span className="sr-only">{t('common.language')}</span>
-      <svg viewBox="0 0 24 24" className="size-5 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <svg viewBox="0 0 24 24" className="hidden size-5 shrink-0 text-muted sm:block" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
         <circle cx="12" cy="12" r="9" />
         <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" />
       </svg>
@@ -57,7 +57,7 @@ export function Navbar() {
             <path d="M6 21c5-6 15-6 20 0" stroke="#d9a43b" strokeWidth="3" fill="none" strokeLinecap="round" />
             <path d="M9 21v4M23 21v4M16 17v8" stroke="#f7f3ea" strokeWidth="2.4" strokeLinecap="round" />
           </svg>
-          <span className="font-display text-xl font-semibold">Parali Setu</span>
+          <span className="font-display text-xl font-semibold max-[379px]:sr-only">Parali Setu</span>
         </Link>
         <div className="order-last -mx-2 flex w-full gap-1 sm:order-none sm:mx-0 sm:w-auto">
           {link('/listings/', 'common.nav.browse')}
