@@ -6,7 +6,7 @@ import type { Construct } from 'constructs';
 
 export class StorageStack extends Stack {
   readonly bucket: Bucket;
-  constructor(scope: Construct, id: string, props: StackProps & { appUrl: string; photosCdn: boolean }) {
+  constructor(scope: Construct, id: string, props: StackProps & { photosCdn: boolean }) {
     super(scope, id, props);
     this.bucket = new Bucket(this, 'Photos', {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,

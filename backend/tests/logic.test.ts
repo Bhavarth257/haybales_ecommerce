@@ -4,6 +4,7 @@ import { agreedPrice, orderMoney, priceBand, quote, transportPerTonne } from '..
 import { fuzz, haversineKm } from '../src/lib/geo';
 import { LIMITS, tierOf } from '../src/lib/rateLimit';
 import { listingSchema, offerSchema, roundTonnes } from '../src/validators';
+import { listingKey, offerKey } from '../src/lib/keys';
 
 describe('offer state machine', () => {
   it('lets the farmer accept, reject or counter a pending offer', () => {
@@ -141,6 +142,24 @@ describe('rate limit tiers', () => {
     expect(tierOf('POST', '/tts')).toBe('ai');
     expect(tierOf('GET', '/listings')).toBe('read');
     expect(tierOf('PATCH', '/jobs/x/status')).toBe('write');
+    expect(tierOf('POST', '/auth/login')).toBe('auth');
+    expect(tierOf('POST', '/auth/refresh')).toBe('write');
     expect(LIMITS.ai[0]).toBeLessThan(LIMITS.write[0]);
+  });
+});
+
+describe('input hardening', () => {
+  it('accepts uuid and seed-style ids in keys', () => {
+    expect(listingKey('1907a93f-9854-4fae-81c4-88be829647ca').PK).toBe('LISTING#1907a93f-9854-4fae-81c4-88be829647ca');
+    expect(listingKey('demo-listing-01').PK).toBe('LISTING#demo-listing-01');
+  });
+  it('rejects ids that could address other key shapes', () => {
+    for (const bad of ['x#OFFER', 'a/b', 'a b', '%23', '', 'x'.repeat(65)]) {
+      expect(() => listingKey(bad)).toThrow();
+      expect(() => offerKey('demo-listing-01', bad)).toThrow();
+    }
+  });
+  it('treats prototype keys as an unknown state in the price band', () => {
+    for (const s of ['__proto__', 'constructor', 'toString']) expect(priceBand(s, null, []).min).toBe(priceBand('Nowhere', null, []).min);
   });
 });

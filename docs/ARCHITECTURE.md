@@ -5,7 +5,7 @@
 |-------|--------|
 | Frontend | Next.js (App Router, TS) + Tailwind + next-intl, on **AWS Amplify Hosting** |
 | Auth | **Cognito** User Pool, email + password, groups `farmers` `buyers` `transporters` `admins` |
-| API | **API Gateway HTTP API** + **Lambda** (Node 24, TS, arm64, esbuild via CDK), Cognito JWT authorizer |
+| API | **API Gateway HTTP API** + **Lambda** (Node 24, TS, arm64, esbuild via CDK), served same-origin at `/api` through an Amplify rewrite; httpOnly-cookie auth in the Lambda wrapper |
 | Data | **DynamoDB** single table `ParaliSetu` + Streams |
 | Files | **S3** (private) + **CloudFront**, pre-signed PUT uploads |
 | Email | **SES**: notifications + help mail to the team (`SUPPORT_EMAIL`, a CDK context value; set to the team inbox at deploy) |
@@ -99,17 +99,18 @@ scripts/seed/     demo users, listings, buyers, impact baseline
 ```
 npm install
 npm run dev:db      # DynamoDB Local on :8765 (needs Java 17; see scripts/dev-db.sh)
-npm run dev:api     # real handlers on http://localhost:4000; auth header: `Authorization: Bearer dev:<userId>`
-npm run seed:local  # demo users: farmer-1..6, buyer-1..3, transporter-1..2, admin-1
+npm run dev:api     # real handlers on http://localhost:4000, AUTH_MODE=local: real signup (scrypt-hashed AUTH#<email>), httpOnly cookies, no Cognito
+npm run seed:local  # sample listings only; no premade accounts (sign up, then `DYNAMO_ENDPOINT=http://localhost:8765 npx tsx scripts/make-admin.ts --local <email>`)
 npx tsx scripts/smoke-local.ts   # end-to-end checks
 npm test            # unit tests;  npm run synth  # CDK synth
 ```
 
 ## 8. Security
-- Every write route uses the JWT authorizer. Roles come from `cognito:groups`, and ownership is checked in the Lambda.
+- There is no API Gateway authorizer. The handler wrapper verifies the httpOnly `__Host-ps_at` cookie (Cognito access token), roles come from `cognito:groups`, and ownership is checked in the Lambda. Admin routes also require TOTP. See [AUTH.md](AUTH.md).
 - Public distances and the price band use points rounded to about 1 km, so callers can't trilaterate farms or buyers.
 - Only admin-approved listings can go live. Closing or re-opening a listing can't bypass approval.
 - The farmer's exact location and phone number are revealed only to the buyer and transporter of an order that has been accepted.
 - Unverified users can browse but can't list or offer.
-- The S3 bucket is private and reads go through CloudFront. IAM is least-privilege per Lambda.
+- The S3 bucket is private and reads go through CloudFront.
+- IAM is least-privilege per Lambda, the DynamoDB stand-in for row-level security: every route reads, but only write routes get `PutItem`/`UpdateItem`, and only on the partition-key prefixes they own (`dynamodb:LeadingKeys`, e.g. `users/updateMe` → `USER#*`, `orders/pay` → `ORDER#*` + `STATS`). No Lambda can `DeleteItem` or `BatchWriteItem`. `auth/*` Lambdas get no table access and no Cognito IAM (they use public APIs); only `/admin/*` Lambdas get `cognito-idp:AdminGetUser` (TOTP check). Which *row* within a prefix a caller may touch is still checked in code. The map is `WRITES` in `infra/lib/stacks/api-stack.ts`.
 - SES stays in sandbox mode, so the demo addresses are verified ahead of time.

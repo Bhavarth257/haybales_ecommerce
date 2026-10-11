@@ -1,12 +1,14 @@
-// Demo data: fictional users, listings and a few completed orders. Idempotent (fixed ids).
-// Local:  npm run seed:local   (DynamoDB Local)      AWS: npm run seed   (table from TABLE_NAME, default ParaliSetu)
-// Note: seeded users exist only in DynamoDB. On AWS, sign up real Cognito accounts for the demo.
+// Local sample data: listings and a few completed orders (so browse and impact aren't empty). Idempotent (fixed ids).
+// Local only: npm run seed:local (DynamoDB Local). The live site starts empty.
+// No accounts: the owners below are plain names, not users. Sign up locally to log in (docs/AUTH.md).
 import { BatchWriteCommand } from '@aws-sdk/lib-dynamodb';
 import type { Crop, Listing, Order, Place, Role, User } from '@parali/shared';
 import { db, TABLE } from '../../backend/src/lib/db';
 import { orderKey, listingKey, statsKey, userKey } from '../../backend/src/lib/keys';
 import { listingIndexes } from '../../backend/src/lib/listings';
 import { CO2_T_PER_T, PM25_KG_PER_T, quote } from '../../backend/src/lib/pricing';
+
+if (!process.env.DYNAMO_ENDPOINT) throw new Error('Seed is local only: run `npm run seed:local` (needs DYNAMO_ENDPOINT).');
 
 const P = (district: string, state: string, lat: number, lng: number, village?: string): Place => ({ district, state, lat, lng, village });
 const PLACES = {
@@ -34,8 +36,8 @@ const user = (userId: string, role: Role, name: string, place: Place, extra: Par
   userId, role, name, place, email: `${userId}@demo.paralisetu.in`, phone: '+919800000000', locale: 'en', verified: true, createdAt: at(0), ...extra,
 });
 
+// Fictional owners for the sample data. Not written to the table: nobody can log in as them.
 const USERS: User[] = [
-  user('admin-1', 'admin', 'Parali Setu Admin', PLACES.patiala),
   user('farmer-1', 'farmer', 'Gurpreet Singh', PLACES.sangrur, { locale: 'pa' }),
   user('farmer-2', 'farmer', 'Harjit Kaur', PLACES.bathinda, { locale: 'pa' }),
   user('farmer-3', 'farmer', 'Rajesh Kumar', PLACES.karnal, { locale: 'hi' }),
@@ -124,7 +126,6 @@ const STATS = {
 };
 
 const items = [
-  ...USERS.map((u) => ({ ...userKey(u.userId), entity: 'USER', GSI1PK: `ROLE#${u.role}`, GSI1SK: u.createdAt, ...u })),
   ...LISTINGS.map((l) => ({ ...listingKey(l.listingId), ...listingIndexes(l), ...l })),
   ...ORDERS.map((o) => ({
     ...orderKey(o.orderId), entity: 'ORDER',
@@ -136,8 +137,11 @@ const items = [
   STATS,
 ];
 
+// Profiles an older seed wrote; removed so no premade accounts linger.
+const OLD_PROFILES = ['admin-1', ...USERS.map((u) => u.userId)].map((id) => ({ DeleteRequest: { Key: userKey(id) } }));
+const writes = [...OLD_PROFILES, ...items.map((Item) => ({ PutRequest: { Item } }))];
+
 (async () => {
-  for (let i = 0; i < items.length; i += 25)
-    await db.send(new BatchWriteCommand({ RequestItems: { [TABLE]: items.slice(i, i + 25).map((Item) => ({ PutRequest: { Item } })) } }));
-  console.log(`Seeded ${USERS.length} users, ${LISTINGS.length} listings, ${ORDERS.length} orders into ${TABLE}. Impact: ${tonnes} t.`);
+  for (let i = 0; i < writes.length; i += 25) await db.send(new BatchWriteCommand({ RequestItems: { [TABLE]: writes.slice(i, i + 25) } }));
+  console.log(`Seeded ${LISTINGS.length} listings, ${ORDERS.length} orders into ${TABLE} (no accounts). Impact: ${tonnes} t.`);
 })();

@@ -38,7 +38,7 @@ export function orderMoney(o: Pick<Order, 'tonnes' | 'pricePerTonne' | 'transpor
  * because the buyer's delivered cost rises with distance.
  */
 export function priceBand(state: string, at: GeoPoint | null, buyers: GeoPoint[]): PriceBand {
-  const [min, max] = STATE_BASE[state] ?? DEFAULT_BASE;
+  const [min, max] = Object.hasOwn(STATE_BASE, state) ? STATE_BASE[state] : DEFAULT_BASE; // not `[state] ??`: '__proto__' would 500
   const nearest = at && buyers.length ? Math.min(...buyers.map((b) => roadKm(at, fuzz(b)))) : null;
   // Within 30 km: full band. Beyond: -₹4/t per km, capped at -₹500/t.
   const adj = nearest === null ? 0 : -Math.min(500, Math.max(0, nearest - 30) * 4);

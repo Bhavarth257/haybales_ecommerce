@@ -2,7 +2,7 @@
 import type { Role } from '@parali/shared';
 import { useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
-import { useAuth } from '../../lib/auth';
+import { OPS_PATH, useAuth } from '../../lib/auth';
 import { useI18n } from '../../lib/i18n';
 import { ErrorBox, Loading } from '../ui';
 
@@ -11,9 +11,11 @@ export function RequireRole({ roles, children }: { roles: Role[]; children: Reac
   const { me, loading } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
+  // Admins sign in at the ops door (with TOTP), never on the public login page.
+  const adminOnly = roles.join() === 'admin';
   useEffect(() => {
-    if (!loading && !me) router.replace(`/login/?next=${encodeURIComponent(location.pathname + location.search)}`);
-  }, [loading, me, router]);
+    if (!loading && !me) router.replace(adminOnly ? OPS_PATH : `/login/?next=${encodeURIComponent(location.pathname + location.search)}`);
+  }, [loading, me, router, adminOnly]);
   if (!me) return <Loading />; // keep content mounted during refresh()
   if (!roles.includes(me.role)) return <ErrorBox message={t('common.errors.wrongRole', { role: roles.map((r) => t(`common.roles.${r}`)).join(' / ') })} />;
   return (

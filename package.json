@@ -10,13 +10,14 @@
   "scripts": {
     "test": "npm -w backend test",
     "synth": "npm -w infra run synth",
-    "dev:api": "AI_MOCK=1 DYNAMO_ENDPOINT=http://localhost:8765 AWS_REGION=ap-south-1 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local npm -w backend run dev",
+    "dev:api": "AUTH_MODE=local AI_MOCK=1 DYNAMO_ENDPOINT=http://localhost:8765 AWS_REGION=ap-south-1 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local npm -w backend run dev",
     "dev:db": "./scripts/dev-db.sh",
     "seed:local": "DYNAMO_ENDPOINT=http://localhost:8765 AWS_REGION=ap-south-1 AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local npx tsx scripts/seed/seed.ts",
-    "seed": "AWS_REGION=ap-south-1 npx tsx scripts/seed/seed.ts",
     "translate": "npx tsx scripts/translate.ts",
     "make-admin": "AWS_REGION=ap-south-1 npx tsx scripts/make-admin.ts",
     "frontend-env": "node scripts/frontend-env.mjs",
-    "deploy": "npm -w infra run deploy -- --outputs-file ../cdk-outputs.json"
+    "deploy": "npm -w infra run deploy -- --outputs-file ../cdk-outputs.json",
+    "amplify-proxy": "./scripts/amplify-proxy.sh",
+    "verify-deploy": "AWS_REGION=ap-south-1 npx tsx scripts/verify-deploy.ts"
   }
 }

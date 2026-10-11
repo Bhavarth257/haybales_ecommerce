@@ -10,7 +10,7 @@ export function PriceBandBox({ place, onUse }: { place: Partial<Place>; onUse: (
   const { t } = useI18n();
   const ready = place.state && place.lat != null && place.lng != null;
   const path = ready ? `/price-band?${new URLSearchParams({ state: place.state!, lat: String(place.lat), lng: String(place.lng) })}` : null;
-  const { data, error, loading } = useApi<PriceBand>(path, { auth: false });
+  const { data, error, loading } = useApi<PriceBand>(path);
 
   if (!ready) return <p className="text-muted">{t('farmer.new.priceNeedPlace')}</p>;
   if (loading) return <p className="text-muted" role="status">{t('farmer.new.bandLoading')}</p>;

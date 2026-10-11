@@ -1,10 +1,10 @@
 # AWS Amplify Hosting build for the static Next.js export (monorepo root).
 # The app must be a static (platform WEB) app, not WEB_COMPUTE: see docs/DEPLOY_CHECKLIST.md step 6.
-# Set these env vars in the Amplify console (values come from cdk-outputs.json, see the checklist):
-#   NEXT_PUBLIC_API_URL, NEXT_PUBLIC_PHOTOS_CDN, NEXT_PUBLIC_USER_POOL_ID, NEXT_PUBLIC_USER_POOL_CLIENT_ID,
-#   NEXT_PUBLIC_SUPPORT_EMAIL (team inbox shown on /help),
+# Set these env vars in the Amplify console (`npm run -s frontend-env` prints them):
+#   NEXT_PUBLIC_API_URL=/api  (same origin: scripts/amplify-proxy.sh rewrites /api/* to API Gateway, see docs/AUTH.md)
+#   NEXT_PUBLIC_PHOTOS_CDN, NEXT_PUBLIC_SUPPORT_EMAIL (team inbox shown on /help),
 #   NEXT_PUBLIC_SITE_URL (this Amplify app's URL, for the sitemap and share previews)
-# Without NEXT_PUBLIC_USER_POOL_ID the build falls back to demo login, which the deployed API rejects.
+# No Cognito ids: login goes through the API, which sets httpOnly cookies.
 version: 1
 frontend:
   phases:

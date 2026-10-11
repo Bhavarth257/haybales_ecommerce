@@ -58,7 +58,9 @@ The full ordered checklist, with expected output and fixes for the usual failure
 aws configure                                          # region ap-south-1
 npx -w infra cdk bootstrap aws://<ACCOUNT_ID>/ap-south-1
 npm run deploy                                         # all stacks; writes cdk-outputs.json
-npm run -s frontend-env                                # the 5 NEXT_PUBLIC_* values for Amplify
+npm run -s frontend-env                                # the NEXT_PUBLIC_* values for Amplify
+npm run amplify-proxy -- <amplifyAppId>                # /api/* → API Gateway, same origin
+npm run verify-deploy -- https://main.<appId>.amplifyapp.com   # PASS/FAIL table of the live stack
 ```
 
 1. **Bedrock (before the first deploy):** `infra/cdk.json` → `bedrockModelId` holds a Claude Haiku inference profile id that has **not been verified for ap-south-1**. Check it with `aws bedrock list-inference-profiles --region ap-south-1`, and send one test prompt so the one-time Anthropic use-case form gets done. Add an AWS Budgets alarm (say $20): the AI routes are throttled to 3 req/s in total, but nothing caps a single user.
@@ -66,18 +68,19 @@ npm run -s frontend-env                                # the 5 NEXT_PUBLIC_* val
 3. **Translations:** `npm run translate` (Amazon Translate) writes `frontend/src/messages/<locale>/`. Commit and push before the Amplify build.
 4. **Amplify Hosting:** connect this GitHub repo in ap-south-1; `amplify.yml` is set up. The app must be a static `WEB` app, not `WEB_COMPUTE`. Add these env vars (`npm run -s frontend-env` prints them):
 
-   | Amplify env var | cdk-outputs.json |
+   | Amplify env var | Value |
    |---|---|
-   | `NEXT_PUBLIC_API_URL` | `ParaliApi.ApiUrl` |
+   | `NEXT_PUBLIC_API_URL` | `/api` (same origin through the Amplify proxy, so login cookies are first-party) |
    | `NEXT_PUBLIC_PHOTOS_CDN` | `ParaliStorage.PhotosCdnUrl` |
-   | `NEXT_PUBLIC_USER_POOL_ID` | `ParaliAuth.UserPoolId` |
-   | `NEXT_PUBLIC_USER_POOL_CLIENT_ID` | `ParaliAuth.UserPoolClientId` |
    | `NEXT_PUBLIC_SUPPORT_EMAIL` | same as `supportEmail` in `infra/cdk.json` |
    | `NEXT_PUBLIC_SITE_URL` | the Amplify app URL, e.g. `https://main.<appId>.amplifyapp.com` (sitemap, share previews) |
 
-5. Put the Amplify URL in `infra/cdk.json` → `appUrl` (it's used in email links), then run `npm run deploy` again.
-6. **Demo data:** `npm run seed` for the listings. Sign up an account in the app, then `USER_POOL_ID=<ParaliAuth.UserPoolId> npm run make-admin -- you@example.com`.
-7. **Android:** `npm run -s frontend-env > frontend/.env.production.local`, then build as in [docs/MOBILE.md](docs/MOBILE.md).
+   The Cognito ids are no longer frontend env vars: the browser never talks to Cognito (see [docs/AUTH.md](docs/AUTH.md)). Then run `npm run amplify-proxy -- <appId>`, which adds the `/api/*` rewrite and turns on cookie forwarding.
+
+5. Put the Amplify URL in `infra/cdk.json` → `appUrl` (email links and the API's CORS allow-list), then run `npm run deploy` again.
+6. **Admin:** production starts empty (don't run `npm run seed` there). Sign up at `/signup`, confirm the email, then `USER_POOL_ID=<ParaliAuth.UserPoolId> npm run make-admin -- you@example.com` and log in at `/ops-b28c4622bfa0/` (scan the TOTP QR code on first login).
+7. **Check it:** `npm run verify-deploy -- <amplifyUrl>`.
+8. **Android:** `npm run -s frontend-env -- <amplifyUrl> > frontend/.env.production.local`, then build as in [docs/MOBILE.md](docs/MOBILE.md).
 
 ## Demo script
 

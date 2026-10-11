@@ -1,6 +1,15 @@
 // Key builders for the single table. See docs/ARCHITECTURE.md §3.
-export const userKey = (id: string) => ({ PK: `USER#${id}`, SK: 'PROFILE' });
-export const listingKey = (id: string) => ({ PK: `LISTING#${id}`, SK: 'META' });
-export const offerKey = (listingId: string, offerId: string) => ({ PK: `LISTING#${listingId}`, SK: `OFFER#${offerId}` });
-export const orderKey = (id: string) => ({ PK: `ORDER#${id}`, SK: 'META' });
+import { idSchema } from '../validators';
+import { HttpError } from './response';
+
+/** Every id that reaches a key passes here: no '#' or other characters that could address another item shape. */
+const id = (v: string) => {
+  if (!idSchema.safeParse(v).success) throw new HttpError(400, 'Invalid id');
+  return v;
+};
+
+export const userKey = (u: string) => ({ PK: `USER#${id(u)}`, SK: 'PROFILE' });
+export const listingKey = (l: string) => ({ PK: `LISTING#${id(l)}`, SK: 'META' });
+export const offerKey = (listingId: string, offerId: string) => ({ PK: `LISTING#${id(listingId)}`, SK: `OFFER#${id(offerId)}` });
+export const orderKey = (o: string) => ({ PK: `ORDER#${id(o)}`, SK: 'META' });
 export const statsKey = { PK: 'STATS', SK: 'GLOBAL' };

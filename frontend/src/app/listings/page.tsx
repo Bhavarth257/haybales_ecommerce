@@ -35,7 +35,7 @@ export default function BrowsePage() {
     if (radius) qs.set('radiusKm', radius);
   }
   const query = qs.toString();
-  const { data, error, loading, reload } = useApi<{ items: Listing[] }>(`/listings${query ? `?${query}` : ''}`, { auth: false });
+  const { data, error, loading, reload } = useApi<{ items: Listing[] }>(`/listings${query ? `?${query}` : ''}`);
 
   const locate = () => {
     if (!navigator.geolocation) return setGpsStatus('error');

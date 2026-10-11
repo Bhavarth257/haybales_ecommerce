@@ -23,14 +23,14 @@ export function HowItWorks() {
     if (el) el.scrollTo({ left: i * el.clientWidth, behavior: scrollBehavior() });
   };
   return (
-    <section className="how-pin reveal mt-16 sm:mt-24 lg:mt-40">
-      <div className="how-sticky">
+    <section className="reveal mt-16 sm:mt-24 lg:mt-40">
+      <div>
       <Tx k="landing.eyebrow.how" as="p" className="eyebrow mb-3" />
       <Tx k="landing.how.title" as="h2" className="font-display text-3xl sm:text-4xl" />
       <ol
         ref={track}
         onScroll={(e) => setActive(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
-        className="how-track mt-6 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] md:grid md:grid-cols-3 md:gap-5 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+        className="how-cards mt-6 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] md:grid md:grid-cols-3 md:gap-5 md:overflow-visible [&::-webkit-scrollbar]:hidden"
       >
         {STEPS.map((s, i) => (
           <li key={s} className="bezel w-full shrink-0 snap-center md:w-auto" aria-roledescription="slide">
