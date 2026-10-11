@@ -19,16 +19,16 @@ We pin Capacitor 7 because Capacitor 8 needs Node 22 and this repo uses Node 20.
 
 ### Point the app at the API
 
-Inside the app the page runs from `https://localhost` (Android) or `capacitor://localhost` (iOS), so relative API calls won't work. `NEXT_PUBLIC_API_URL` is baked in at build time and must be absolute:
+Inside the app the page runs from `https://localhost` (Android) or `capacitor://localhost` (iOS), so relative API calls won't work. `NEXT_PUBLIC_API_URL` is baked in at build time and must be the absolute Amplify URL with the `/api` proxy path: `https://<amplify-domain>/api`. Don't use the raw API Gateway URL: the session cookies are issued for the Amplify domain.
 
-Write all five build values (API URL, photos CDN, Cognito pool and client, support email) from the CDK outputs into a gitignored env file that `next build` reads:
+Login sessions are httpOnly cookies. `capacitor.config.ts` turns on `CapacitorHttp` (fetch goes through the native HTTP stack, so there's no CORS) and `CapacitorCookies` (the native cookie jar keeps the session between launches).
+
+Write the build values from the CDK outputs into a gitignored env file that `next build` reads, then set `NEXT_PUBLIC_API_URL` in it to `https://<amplify-domain>/api`:
 
 ```bash
 npm run -s frontend-env > frontend/.env.production.local   # needs cdk-outputs.json from `npm run deploy`
 npm -w frontend run cap:sync
 ```
-
-Without the Cognito values the app falls back to demo login, which the deployed API rejects.
 
 To test against a local backend, set `NEXT_PUBLIC_API_URL` in that file to your PC's LAN IP, for example `http://192.168.1.20:4000`. The phone has to be on the same Wi-Fi. Android blocks http from an https page by default, so for a local test only, add `cleartext: true` under `server` in `capacitor.config.ts`. Remove it afterwards.
 
