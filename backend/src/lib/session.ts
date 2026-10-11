@@ -143,7 +143,7 @@ export const localUserId = async (email: string) =>
 /** Local sign-in: tokens with the role's group from the profile, mirroring Cognito's access token claims. */
 export async function localTokens(userId: string) {
   const u = await getUser(userId);
-  if (!u) return null;
+  if (!u || u.deleted) return null;
   return {
     at: signLocal({ sub: userId, username: userId, 'cognito:groups': [ROLE_GROUP[u.role]], token_use: 'access' }, MAX_AGE[AT]),
     rt: signLocal({ sub: userId, token_use: 'refresh' }, MAX_AGE[RT]),

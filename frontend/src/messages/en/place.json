@@ -6,5 +6,6 @@
   "useGps": "Use my location",
   "gpsError": "Couldn't get your location. Pick your district instead.",
   "pinned": "Location set ({lat}, {lng})",
-  "noPin": "Pick a district or use your location."
+  "noPin": "Pick a district or use your location.",
+  "approx": "Approximate location (state centre). Tap \"Use my location\" for an accurate distance and transport price."
 }

@@ -48,6 +48,19 @@ export interface User {
   locale: string;
   verified: boolean;
   createdAt: string;
+  /** YYYY-MM-DD. Admins check it when a guardian asks for an under-18 account. */
+  dob?: string;
+  consent?: Consent;
+  /** Account deleted by its owner (profile anonymised, login removed). */
+  deleted?: boolean;
+}
+
+/** Terms and Privacy versions shown at signup (the "Last updated" date on each page). */
+export const LEGAL_VERSION = '2026-10-11';
+export interface Consent {
+  termsVersion: string;
+  privacyVersion: string;
+  at: string;
 }
 
 export interface Listing {
@@ -140,4 +153,14 @@ export interface ImpactStats {
   farmersPaid: number;
   rupeesToFarmers: number;
   orders: number;
+}
+
+/** Today's date in India as YYYY-MM-DD (en-CA formats dates that way). */
+export const todayIST = (now = new Date()) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(now);
+
+/** Whole years between two YYYY-MM-DD dates. A 29 Feb birth turns a year older on 1 Mar in non-leap years. */
+export function ageOn(dob: string, today: string): number {
+  const [by, bmd] = [Number(dob.slice(0, 4)), dob.slice(5)];
+  const [ty, tmd] = [Number(today.slice(0, 4)), today.slice(5)];
+  return ty - by - (tmd < bmd ? 1 : 0);
 }

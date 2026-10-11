@@ -17,7 +17,7 @@ export const handler = wrap(async (event) => {
       UpdateExpression: 'SET ' + entries.map(([k]) => `#${k} = :${k}`).join(', '),
       ExpressionAttributeNames: Object.fromEntries(entries.map(([k]) => [`#${k}`, k])),
       ExpressionAttributeValues: Object.fromEntries(entries.map(([k, v]) => [`:${k}`, v])),
-      ConditionExpression: 'attribute_exists(PK)',
+      ConditionExpression: 'attribute_exists(PK) AND attribute_not_exists(deleted)',
       ReturnValues: 'ALL_NEW',
     }),
   );

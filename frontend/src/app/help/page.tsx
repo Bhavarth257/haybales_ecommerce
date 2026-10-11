@@ -41,9 +41,9 @@ export default function Page() {
       ) : (
         <Card>
           <form onSubmit={send} className="space-y-4">
-            <Field label={t('help.subject')}>{(p) => <Input {...p} required maxLength={120} value={subject} onChange={(e) => setSubject(e.target.value)} />}</Field>
-            <Field label={t('help.message')} hint={t('help.messageHint')}>
-              {(p) => <Textarea {...p} required rows={5} maxLength={3000} value={message} onChange={(e) => setMessage(e.target.value)} />}
+            <Field label={t('help.subject')}>{(p) => <Input {...p} required maxLength={120} placeholder={t('common.ph.subject')} value={subject} onChange={(e) => setSubject(e.target.value)} />}</Field>
+            <Field label={t('help.message')}>
+              {(p) => <Textarea {...p} required rows={5} maxLength={3000} placeholder={t('help.messageHint')} value={message} onChange={(e) => setMessage(e.target.value)} />}
             </Field>
             {error && <ErrorBox message={error} />}
             <Button type="submit" full loading={state === 'busy'}><Tx k="help.send" /></Button>

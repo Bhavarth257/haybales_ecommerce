@@ -1,20 +1,30 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRef } from 'react';
 import { HOME, useAuth } from '../../lib/auth';
 import { Tx, useI18n } from '../../lib/i18n';
 import { LOCALES, type Locale } from '../../messages';
 
 function LanguagePicker() {
   const { locale, setLocale, t } = useI18n();
+  const select = useRef<HTMLSelectElement>(null);
+  // A label only focuses the select; open its list too when the globe is tapped (showPicker is newer, so guarded).
+  const open = (e: React.MouseEvent) => {
+    if (e.target === select.current) return;
+    try {
+      select.current?.showPicker?.();
+    } catch {}
+  };
   return (
-    <label className="flex items-center gap-1.5 text-sm">
+    // One pill: the globe and the select share a label, so tapping the globe focuses the select.
+    <label className="flex min-h-10 cursor-pointer items-center gap-1 rounded-full border border-line bg-surface pl-2.5 pr-1 text-sm focus-within:border-field focus-within:ring-2 focus-within:ring-field/25" onClick={open}>
       <span className="sr-only">{t('common.language')}</span>
-      <svg viewBox="0 0 24 24" className="hidden size-5 text-muted sm:block" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <svg viewBox="0 0 24 24" className="size-5 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
         <circle cx="12" cy="12" r="9" />
         <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z" />
       </svg>
-      <select value={locale} onChange={(e) => setLocale(e.target.value as Locale)} className="min-h-10 rounded-lg border border-line bg-surface px-2 text-sm">
+      <select ref={select} value={locale} onChange={(e) => setLocale(e.target.value as Locale)} className="min-h-10 cursor-pointer bg-transparent pr-1 text-sm focus:outline-none">
         {LOCALES.map((l) => (
           <option key={l.code} value={l.code}>
             {l.label}

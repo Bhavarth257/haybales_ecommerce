@@ -1,5 +1,5 @@
 'use client';
-import type { Listing, Order, Role, User } from '@parali/shared';
+import { ageOn, todayIST, type Listing, type Order, type Role, type User } from '@parali/shared';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { ImpactCounter } from '../../components/landing/ImpactCounter';
@@ -7,7 +7,7 @@ import { Badge, Button, Card, Empty, ErrorBox, Field, Input, Loading, PageHeader
 import { useApi } from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { authError, useAuth } from '../../lib/auth';
-import { date, perTonne, rupees, tonnes } from '../../lib/format';
+import { date, maskPhone, perTonne, rupees, tonnes } from '../../lib/format';
 import { Tx, useI18n } from '../../lib/i18n';
 
 type Tab = 'listings' | 'users' | 'orders' | 'impact';
@@ -82,6 +82,7 @@ function People() {
   const [all, setAll] = useState(false);
   const q = useApi<{ items: User[] }>(`/admin/users?role=${role}${all ? '' : '&verified=false'}`);
   const { busy, error, run } = useAction(q.reload);
+  const [shown, setShown] = useState<string | null>(null);
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -110,9 +111,18 @@ function People() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold">{u.org ?? u.name}</p>
-                  <p className="text-sm text-muted">{[u.email, u.phone, u.place && `${u.place.district}, ${u.place.state}`].filter(Boolean).join(' · ')}</p>
+                  <p className="text-sm text-muted">{[u.email, u.place && `${u.place.district}, ${u.place.state}`].filter(Boolean).join(' · ')}</p>
+                  {u.phone && (
+                    <p className="flex items-center gap-2 text-sm text-muted">
+                      {shown === u.userId ? u.phone : maskPhone(u.phone)}
+                      <button type="button" className="min-h-11 px-2 font-semibold text-field underline underline-offset-4" onClick={() => setShown(shown === u.userId ? null : u.userId)}>
+                        {t(shown === u.userId ? 'common.hide' : 'common.show')}
+                      </button>
+                    </p>
+                  )}
+                  {u.dob && <p className="text-sm text-muted">{t('admin.born', { dob: u.dob, age: ageOn(u.dob, todayIST()) })}</p>}
                 </div>
-                <Badge tone={u.verified ? 'good' : 'warn'}>{t(u.verified ? 'admin.verified' : 'admin.unverified')}</Badge>
+                {u.deleted ? <Badge tone="warn">{t('admin.deleted')}</Badge> : <Badge tone={u.verified ? 'good' : 'warn'}>{t(u.verified ? 'admin.verified' : 'admin.unverified')}</Badge>}
               </div>
               <Button
                 className="mt-3"

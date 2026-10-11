@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Don't burn your stubble. Sell it.",
-    "problem": "Every October and November, burning paddy stubble sends smoke across north India.",
+    "problem": "Paddy stubble is burned every October and November, wheat stubble every April and May. The smoke spreads across north India.",
     "offer": "Parali Setu connects you with biomass plants, mills and feed makers who pay for it and pick it up.",
     "ctaFarmer": "I'm a farmer: sell stubble",
     "ctaBuyer": "I'm a buyer: find stubble",
@@ -68,12 +68,76 @@
   },
   "manifesto": {
     "kicker": "Why it matters",
-    "text": "Burning one tonne of paddy straw puts about 1.4 tonnes of CO₂ and 8 kg of fine smoke into the air. Sold here, that tonne goes to a power plant or a mill instead."
+    "text": "Burning one tonne of paddy or wheat straw puts about 1.4 tonnes of CO₂ and 8 kg of fine smoke into the air. Sold here, that tonne goes to a power plant or a mill instead."
   },
   "eyebrow": {
     "impact": "Live impact",
     "how": "Three people, one bale",
     "price": "Fair price",
     "buyers": "Who buys"
+  },
+  "bigger": {
+    "eyebrow": "The bigger picture",
+    "title": "Punjab and Haryana still burn millions of tonnes of straw every year. That straw has buyers.",
+    "sub": "Paddy straw is burned in October and November, wheat straw in April and May. Fire counts have fallen since 2023, but satellites still map about 30,000 km² of burned paddy fields.",
+    "burned": {
+      "label": "Paddy straw burned",
+      "value": "~{n} lakh",
+      "unit": "tonnes a year. Our estimate from burned area mapped by satellite."
+    },
+    "pools": {
+      "label": "Its size, baled",
+      "value": "{n}",
+      "unit": "Olympic swimming pools"
+    },
+    "co2": {
+      "label": "CO₂ from the fires",
+      "value": "{n} crore",
+      "unit": "tonnes in one paddy season"
+    },
+    "pm25": {
+      "label": "PM2.5 from the fires",
+      "value": "{n}",
+      "unit": "tonnes of fine smoke in one paddy season"
+    },
+    "delhi": {
+      "label": "Delhi's PM2.5 from stubble",
+      "value": "Up to {n}%",
+      "unit": "on the worst day of 2024 (15 Nov), not the season average"
+    },
+    "worth": {
+      "label": "What that straw is worth",
+      "value": "{n} crore",
+      "unit": "at {price} a tonne, about {acre} an acre"
+    },
+    "fixTitle": "How burning is stopped, and where we fit",
+    "fix": {
+      "seeder": {
+        "title": "Sow through it",
+        "body": "A Happy Seeder or Super Seeder sows wheat straight into the paddy straw, so nothing is left to burn."
+      },
+      "rot": {
+        "title": "Let it rot",
+        "body": "A spray such as the PUSA bio-decomposer breaks stubble down in the field over a few weeks."
+      },
+      "sell": {
+        "title": "Sell it",
+        "body": "Balers pack straw for power plants, bio-CNG plants, boilers, pellet makers and paper mills. Punjab sent about 70 lakh tonnes this way in 2025."
+      },
+      "feed": {
+        "title": "Feed and grow",
+        "body": "Wheat straw is already cattle fodder (bhusa). Paddy straw can grow mushrooms."
+      },
+      "govt": {
+        "title": "Government help",
+        "body": "50–80% subsidy on residue machines, ₹1,200 an acre in Haryana for not burning, and pellet rules for power plants and brick kilns."
+      },
+      "setu": {
+        "title": "Where Parali Setu fits",
+        "body": "The machines and the buyers exist. We link a farmer with straw, a transporter and a plant that needs it, before the field has to be cleared."
+      }
+    },
+    "sourcesTitle": "Sources and method",
+    "method": "Burned tonnes: about 28,800 km² of burned fields × 5 tonnes of straw a hectare × half actually burned. CO₂ 1.43 tonnes and PM2.5 8.2 kg per tonne burned. Bales at 140 kg per m³, 2,500 m³ to a pool. Price ₹1,500 a tonne, 2.5 tonnes an acre. Official Punjab figures say almost all straw is now managed; the satellite data disagrees."
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 import type { Place } from '@parali/shared';
 import { useState } from 'react';
-import { DISTRICTS, STATES } from '../../lib/districts';
+import { DISTRICTS, STATE_CENTRES, STATES } from '../../lib/districts';
 import { useI18n } from '../../lib/i18n';
 import { Button, Field, Input, Select } from '../ui';
 
@@ -13,6 +13,10 @@ export function PlaceInput({ value, onChange }: { value: Partial<Place>; onChang
   const { t } = useI18n();
   const [gps, setGps] = useState<'idle' | 'busy' | 'error'>('idle');
   const districts = value.state ? Object.keys(DISTRICTS[value.state] ?? {}) : [];
+
+  // Still on the state-centre fallback (no known district point, no GPS): say the distance is rough.
+  const centre = value.state ? STATE_CENTRES[value.state] : undefined;
+  const approx = !!centre && centre[0] === value.lat && centre[1] === value.lng;
 
   const pickDistrict = (district: string) => {
     const c = value.state ? DISTRICTS[value.state]?.[district] : undefined;
@@ -33,7 +37,11 @@ export function PlaceInput({ value, onChange }: { value: Partial<Place>; onChang
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={t('place.state')}>
           {(p) => (
-            <Select {...p} required value={value.state ?? ''} onChange={(e) => onChange({ ...value, state: e.target.value, district: '' })}>
+            <Select {...p} required value={value.state ?? ''} onChange={(e) => {
+              // Start from the state's centre so every state works without GPS; a known district or GPS refines it.
+              const c = STATE_CENTRES[e.target.value];
+              onChange({ ...value, state: e.target.value, district: '', ...(c ? { lat: c[0], lng: c[1] } : {}) });
+            }}>
               <option value="" disabled>{t('place.choose')}</option>
               {STATES.map((s) => <option key={s}>{s}</option>)}
             </Select>
@@ -58,7 +66,7 @@ export function PlaceInput({ value, onChange }: { value: Partial<Place>; onChang
           {t('place.useGps')}
         </Button>
         <span className="text-sm text-muted" aria-live="polite">
-          {gps === 'error' ? t('place.gpsError') : value.lat != null ? t('place.pinned', { lat: value.lat.toFixed(3), lng: value.lng!.toFixed(3) }) : t('place.noPin')}
+          {gps === 'error' ? t('place.gpsError') : approx ? t('place.approx') : value.lat != null ? t('place.pinned', { lat: value.lat.toFixed(3), lng: value.lng!.toFixed(3) }) : t('place.noPin')}
         </span>
       </div>
     </div>

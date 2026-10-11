@@ -96,7 +96,7 @@ function NewListing() {
           <ChoiceGroup legend={t('farmer.new.crop')} name="crop" cols={3} value={crop} onChange={setCrop} options={CROPS.map((c) => ({ value: c, label: t(`common.crops.${c}`) }))} />
           <ChoiceGroup legend={t('farmer.new.form')} name="form" value={form} onChange={setForm} options={FORMS.map((f) => ({ value: f, label: t(`common.forms.${f}`) }))} />
           <Field label={t('farmer.new.tonnes')} hint={t('farmer.new.tonnesHint')}>
-            {(p) => <Input {...p} required type="number" inputMode="decimal" min={0.1} max={10000} step="any" value={qty} onChange={(e) => setQty(e.target.value)} />}
+            {(p) => <Input {...p} required type="number" inputMode="decimal" min={0.1} max={10000} step="any" placeholder={t('common.ph.tonnes')} value={qty} onChange={(e) => setQty(e.target.value)} />}
           </Field>
           <Field label={t('farmer.new.harvest')}>
             {(p) => <Input {...p} required type="month" value={harvest} max={thisMonth()} onChange={(e) => setHarvest(e.target.value)} />}
@@ -114,7 +114,7 @@ function NewListing() {
         <Step title={<Tx k="farmer.new.stepPrice" />}>
           <Field label={t('farmer.new.price')}>
             {(p) => (
-              <Input {...p} required type="number" inputMode="numeric" min={100} max={20000} step={1} value={price} onChange={(e) => setPrice(e.target.value)} />
+              <Input {...p} required type="number" inputMode="numeric" min={100} max={20000} step={1} placeholder={t('common.ph.price')} value={price} onChange={(e) => setPrice(e.target.value)} />
             )}
           </Field>
           <PriceBandBox place={place} onUse={(n) => setPrice(String(n))} />
@@ -124,11 +124,11 @@ function NewListing() {
         {step === 3 && (
         <Step title={<Tx k="farmer.new.stepPhotos" />}>
           {PHOTOS_CDN ? <PhotoPicker keys={photos} onChange={setPhotos} onBusy={setUploading} /> : <p className="text-muted">{t('farmer.new.photosOff')}</p>}
-          <Field label={t('farmer.new.moisture')} hint={t('farmer.new.moistureHint')}>
-            {(p) => <Input {...p} type="number" inputMode="decimal" min={0} max={100} step="any" value={moisture} onChange={(e) => setMoisture(e.target.value)} />}
+          <Field label={t('farmer.new.moisture')}>
+            {(p) => <Input {...p} type="number" inputMode="decimal" min={0} max={100} step="any" placeholder={t('common.ph.moisture')} value={moisture} onChange={(e) => setMoisture(e.target.value)} />}
           </Field>
-          <Field label={t('farmer.new.notes')} hint={t('farmer.new.notesHint')}>
-            {(p) => <Textarea {...p} maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} />}
+          <Field label={t('farmer.new.notes')}>
+            {(p) => <Textarea {...p} maxLength={1000} placeholder={t('common.ph.notes')} value={notes} onChange={(e) => setNotes(e.target.value)} />}
           </Field>
         </Step>
         )}

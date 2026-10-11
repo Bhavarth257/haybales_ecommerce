@@ -17,7 +17,7 @@ export function CountUp({ value, format }: { value: number; format: (n: number) 
       io.disconnect();
       const start = performance.now();
       const tick = (t: number) => {
-        const p = Math.min(1, (t - start) / 1400);
+        const p = Math.min(1, (t - start) / 2600);
         setShown(value * (1 - Math.pow(1 - p, 4))); // ease-out quart: fast start, soft landing
         if (p < 1) raf = requestAnimationFrame(tick);
       };

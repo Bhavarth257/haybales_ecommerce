@@ -12,7 +12,7 @@ export async function getUser(id: string): Promise<User | undefined> {
 /** Profile must exist and be admin-verified before listing, offering or hauling. */
 export async function requireVerified(id: string): Promise<User> {
   const u = await getUser(id);
-  if (!u) throw new HttpError(403, 'Profile not found');
+  if (!u || u.deleted) throw new HttpError(403, 'Profile not found');
   if (!u.verified) throw new HttpError(403, 'Your account is waiting for verification by the Parali Setu team');
   return u;
 }

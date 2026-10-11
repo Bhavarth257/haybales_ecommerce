@@ -1,7 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 export const inputClass =
-  'block w-full min-h-12 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-base text-ink placeholder:text-muted/70 focus:border-field focus:outline-none focus:ring-2 focus:ring-field/25 aria-[invalid=true]:border-ember';
+  'block w-full min-h-12 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-base text-ink placeholder:text-muted focus:border-field focus:outline-none focus:ring-2 focus:ring-field/25 aria-[invalid=true]:border-ember';
 
 interface FieldProps {
   label: ReactNode;
