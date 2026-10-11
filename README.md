@@ -1,105 +1,139 @@
+<p align="center">
+  <img src="docs/img/banner.jpg" alt="Parali Setu: every state, seven languages" width="100%">
+</p>
+
 # Parali Setu
 
-Every October and November, farmers in Punjab and Haryana burn paddy stubble (*parali*) because clearing it costs money and the next sowing window is short. The smoke covers north India.
+**Sell stubble. Stop burning.** A marketplace that connects farmers who have crop stubble with the buyers who want it and the transporters who can move it.
 
-**Parali Setu** ("stubble bridge") lets farmers sell that stubble instead. Biomass plants, paper mills, feed makers and mushroom growers buy it at a fair price. A transporter carries it from the field to the buyer. Every tonne delivered counts on the landing page as tonnes kept out of the fire, CO₂ and PM2.5 avoided, and rupees paid to farmers.
+**Live site:** https://main.d241cf4tglqpuy.amplifyapp.com
 
-Built for the WeMakeDevs AWS hackathon.
+Built for the WeMakeDevs × AWS Bharat Builds Tour, Environmental Hacks, Track 01 (Air).
 
-## What's in it
+## The problem
+
+After the paddy harvest in October and November, and again after wheat in April and May, farmers in Punjab and Haryana burn their stubble (*parali*). They don't want to. Clearing the field costs money, and the next crop has to go in within weeks. By our estimate from satellite-mapped burned area, about 70 lakh tonnes of paddy straw is burned every year. On the smokiest days, stubble smoke has made up to 37% of Delhi's PM2.5.
+
+The straw has buyers: biomass and bio-CNG plants, paper mills, boilers, cattle feed makers and mushroom growers. What's missing is a way for them to find each other at a fair price, and someone to haul it. Parali Setu ("stubble bridge") is that link.
+
+![The bigger picture section of the site](docs/img/bigger-picture.jpg)
+
+## How it works
 
 | Who | What they do |
 |---|---|
-| **Farmer** | Lists stubble in four short steps: crop, tonnes, location and price. A fair price band for their region shows next to the price field. The farmer then accepts, counters or rejects offers. |
-| **Buyer** | Searches by state, crop, price and distance. Sees one **delivered price per tonne** (stubble + transport), makes an offer, and pays when the stubble arrives (payment is a demo). |
-| **Transporter** | Picks pickup jobs from a board and marks them picked up, then delivered. Earns the transport charge. |
-| **Admin** | Approves listings, verifies people, sees every order and the impact totals. |
+| **Farmer** | Lists stubble in four short steps: crop, tonnes, location, price. A fair price band for the region shows next to the price field. Accepts, counters or rejects offers. |
+| **Buyer** | Searches by state, crop, price and distance. Sees one **delivered price per tonne** (stubble plus transport), locked at the moment of the offer. Makes an offer and pays when the stubble arrives. |
+| **Transporter** | Picks pickup jobs from a board that shows the route, distance and earnings, then marks them picked up and delivered. |
+| **Admin** | Approves listings, verifies people, sees every order. Signs in on a separate hidden page with a two-factor code. |
 
-- **Languages:** English, Hindi, Punjabi, Haryanvi, Tamil, Telugu and Malayalam. In any language other than English, headings and buttons keep a faint English line underneath.
-- **AI assistant:** an assistant on Amazon Bedrock that understands Hinglish, with read-aloud in Hindi and English through Amazon Polly.
-- **Phones vs desktop:** phones get a light, paged interface with short steps and tabs, and no long scrolling. Laptops also get a Three.js hero and scroll-driven sections, which phones never download.
+Negotiation has one counter round, so a deal either closes or doesn't. Every delivered tonne adds to a public impact counter on the home page: tonnes kept out of the fire, CO₂ and PM2.5 avoided, and rupees paid to farmers.
 
-## AWS architecture
+![Home page](docs/img/home-desktop.jpg)
 
-```
-Browser ─▶ Amplify Hosting (static Next.js) ──sign in──▶ Cognito (farmers/buyers/transporters/admins)
-              │ JWT
-              ▼
-      API Gateway HTTP API ─▶ Lambda (1 per route, Node 24, arm64)
-              │                   ├─▶ DynamoDB (single table) ──Streams──▶ notify Lambda ─▶ SES email
-              │                   ├─▶ S3 photos (presigned POST, 5 MB cap) ◀── CloudFront
-              │                   ├─▶ Bedrock (Converse API) · Polly (read-aloud)
-              │                   └─▶ CloudWatch logs
-Amazon Translate ─▶ UI strings for 6 Indian languages (build-time script)
-```
+## Made for the people who'll use it
 
-These are 13 AWS services, all serverless and pay-per-use, and all defined in CDK (`infra/`) except Amplify. Details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **All of India, seven languages.** Every state and union territory, in English, Hindi, Punjabi, Haryanvi, Tamil, Telugu and Malayalam. Outside English, headings and buttons keep a small English line underneath, so a family member or a helper can follow along.
+- **Built for cheap phones.** Short paged steps, big buttons and no long scrolling. The Three.js hero and scroll animations only load on laptops with a fine pointer. It can be installed from the browser, and Android and iOS app shells are included (see [docs/MOBILE.md](docs/MOBILE.md)).
+- **An assistant that understands Hinglish.** Amazon Bedrock answers questions about prices and the app, and Amazon Polly reads the answer aloud in Hindi or English.
 
-## Run it locally (no AWS account needed)
+![The site on a phone](docs/img/phone.jpg)
 
-Requires Node 20 and Java 17 for DynamoDB Local.
+## Safe by design
+
+- Login uses **httpOnly cookies**. No token is ever stored where page scripts can read it. State-changing requests carry a CSRF header, and a strict content security policy limits what the page can load.
+- **Admin accounts need an authenticator-app code** every time. They can't be created from the public signup, and the admin page isn't linked anywhere public.
+- **Rate limits** per user on every route (5 login attempts a minute), and a hard daily cap on AI calls to keep the bill predictable.
+- **Least-privilege IAM** per Lambda, and ids are validated before they reach any database key.
+- **An 18+ check** on signup, with a route for a parent or guardian to contact the team. Consent is recorded with the account, phone numbers are masked, and users can delete their account.
+- Privacy, terms, refund, shipping and contact pages are included.
+
+How login works in detail: [docs/AUTH.md](docs/AUTH.md).
+
+## Architecture
+
+Fully serverless in `ap-south-1` (Mumbai), with all infrastructure written in AWS CDK (TypeScript).
+
+![AWS architecture](docs/img/architecture.png)
+
+| Service | What it does here |
+|---|---|
+| Amplify Hosting | Serves the static Next.js site and proxies `/api` so cookies are first-party |
+| Cognito | Sign-up, email verification, login, TOTP for admins |
+| API Gateway and Lambda | One Node.js function per route, on arm64 |
+| DynamoDB | Single table for users, listings, offers, orders and impact; transactions prevent double-accepts; TTL clears rate-limit counters; Streams trigger emails |
+| S3 | Listing photos through a size-capped presigned POST |
+| SES | Order and help emails |
+| Bedrock | The assistant (Claude Haiku, India inference profile) |
+| Polly | Read-aloud |
+| Translate | First-pass UI translations, then reviewed by hand |
+| CloudWatch | Logs |
+
+More detail, including table keys and routes, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Run it locally
+
+You don't need an AWS account. You need Node 20 and Java 17 (for DynamoDB Local).
 
 ```bash
 npm install
 curl -sL https://d1ni2b6xgvw0s0.cloudfront.net/v2.x/dynamodb_local_latest.tar.gz | tar xz -C .dynamodb   # once
-npm run dev:db        # DynamoDB Local on :8765
-npm run dev:api       # the real Lambda handlers on http://localhost:4000 (AI replies are mocked)
-npm run seed:local    # demo accounts and 19 listings
-npm -w frontend run dev   # http://localhost:3000, log in by picking a demo account
+npm run dev:db            # DynamoDB Local on :8765
+npm run dev:api           # the real Lambda handlers on http://localhost:4000 (AI replies are mocked)
+npm run seed:local        # sample listings only, no accounts
+npm -w frontend run dev   # http://localhost:3000
 ```
 
-Checks: `npm test` (unit tests), `npx tsx scripts/smoke-local.ts` (37-step end-to-end flow), `npm run synth` (CDK).
+Sign up in the app to create accounts. Locally, signup is confirmed automatically and there's no email. To make a local admin, sign up first and then run `npx tsx scripts/make-admin.ts --local you@example.com`.
+
+Checks:
+
+```bash
+npm test                          # unit tests
+npx tsx scripts/smoke-local.ts    # end-to-end flow against the local API
+npm run synth                     # builds the CloudFormation templates
+```
 
 ## Deploy
 
-The full ordered checklist, with expected output and fixes for the usual failures, is in [docs/DEPLOY_CHECKLIST.md](docs/DEPLOY_CHECKLIST.md). Short version:
+The complete, ordered checklist is in [docs/DEPLOY_CHECKLIST.md](docs/DEPLOY_CHECKLIST.md). In short:
 
 ```bash
-aws configure                                          # region ap-south-1
+aws configure                                    # region ap-south-1
 npx -w infra cdk bootstrap aws://<ACCOUNT_ID>/ap-south-1
-npm run deploy                                         # all stacks; writes cdk-outputs.json
-npm run -s frontend-env                                # the NEXT_PUBLIC_* values for Amplify
-npm run amplify-proxy -- <amplifyAppId>                # /api/* → API Gateway, same origin
-npm run verify-deploy -- https://main.<appId>.amplifyapp.com   # PASS/FAIL table of the live stack
+npm run deploy                                   # all stacks, writes cdk-outputs.json
+npm run amplify-proxy -- <amplifyAppId>          # /api/* to API Gateway, with cookie forwarding
+npm run verify-deploy -- https://main.<appId>.amplifyapp.com
 ```
 
-1. **Bedrock (before the first deploy):** `infra/cdk.json` → `bedrockModelId` holds a Claude Haiku inference profile id that has **not been verified for ap-south-1**. Check it with `aws bedrock list-inference-profiles --region ap-south-1`, and send one test prompt so the one-time Anthropic use-case form gets done. Add an AWS Budgets alarm (say $20): the AI routes are throttled to 3 req/s in total, but nothing caps a single user.
-2. **SES:** click the verification email sent to `supportEmail` (`infra/cdk.json`). In sandbox mode also verify every demo inbox with `aws sesv2 create-email-identity --region ap-south-1 --email-identity <addr>`.
-3. **Translations:** `npm run translate` (Amazon Translate) writes `frontend/src/messages/<locale>/`. Commit and push before the Amplify build.
-4. **Amplify Hosting:** connect this GitHub repo in ap-south-1; `amplify.yml` is set up. The app must be a static `WEB` app, not `WEB_COMPUTE`. Add these env vars (`npm run -s frontend-env` prints them):
+`verify-deploy` prints a pass or fail table: stacks, API, database reads and writes, login cookies through the proxy, security headers, and that no source maps are served. Amplify builds the site from `amplify.yml`; the environment variables it needs are in the checklist.
 
-   | Amplify env var | Value |
-   |---|---|
-   | `NEXT_PUBLIC_API_URL` | `/api` (same origin through the Amplify proxy, so login cookies are first-party) |
-   | `NEXT_PUBLIC_PHOTOS_CDN` | `ParaliStorage.PhotosCdnUrl` |
-   | `NEXT_PUBLIC_SUPPORT_EMAIL` | same as `supportEmail` in `infra/cdk.json` |
-   | `NEXT_PUBLIC_SITE_URL` | the Amplify app URL, e.g. `https://main.<appId>.amplifyapp.com` (sitemap, share previews) |
+## Where the numbers come from
 
-   The Cognito ids are no longer frontend env vars: the browser never talks to Cognito (see [docs/AUTH.md](docs/AUTH.md)). Then run `npm run amplify-proxy -- <appId>`, which adds the `/api/*` rewrite and turns on cookie forwarding.
+- **CO₂:** about 1.42 tonnes per tonne of residue burnt (Jain et al. 2014, *Aerosol and Air Quality Research* 14:422). A newer review gives 1.43 (Andreae 2019).
+- **PM2.5:** about 8.3 kg per tonne of rice straw (Gadde et al. 2009, *Environmental Pollution* 157:1554).
+- **Delhi's share of PM2.5:** the CPCB NCR air quality bulletin for 16 November 2024.
+- **Burned area and tonnes:** satellite-mapped burned area, with our own assumptions. The site marks it as an estimate, and the "Sources and method" section on the home page lists every source.
+- **Price bands and haulage** (₹150 a tonne for loading plus ₹6 per tonne-km) are assumptions in `backend/src/lib/pricing.ts`, not market data.
+- **Payments** are a clearly labelled demo for now. The plan for Razorpay is in the deploy checklist. Login is email and password; phone OTP comes later because SMS in India needs DLT registration.
 
-5. Put the Amplify URL in `infra/cdk.json` → `appUrl` (email links and the API's CORS allow-list), then run `npm run deploy` again.
-6. **Admin:** production starts empty (don't run `npm run seed` there). Sign up at `/signup`, confirm the email, then `USER_POOL_ID=<ParaliAuth.UserPoolId> npm run make-admin -- you@example.com` and log in at `/ops-b28c4622bfa0/` (scan the TOTP QR code on first login).
-7. **Check it:** `npm run verify-deploy -- <amplifyUrl>`.
-8. **Android:** `npm run -s frontend-env -- <amplifyUrl> > frontend/.env.production.local`, then build as in [docs/MOBILE.md](docs/MOBILE.md).
+## Repository
 
-## Demo script
+```
+frontend/   Next.js app, translations, Capacitor Android and iOS shells
+backend/    Lambda handlers, zod validators, tests
+infra/      CDK stacks: data, auth, storage, api, notify
+shared/     Types shared by frontend and backend
+scripts/    Seed, smoke test, translate, make-admin, deploy checks
+docs/       Product spec, architecture, auth, deploy checklist, mobile
+```
 
-1. The landing page shows the live impact numbers.
-2. A farmer, in Punjabi, lists 25 tonnes of paddy straw from Sangrur and sees the fair price band.
-3. The admin approves the listing.
-4. A buyer (a biomass plant in Patiala) finds it 69 km away and offers ₹1,600/tonne. The farmer counters at ₹1,700 and the buyer accepts.
-5. A transporter takes the job and marks it picked up, then delivered. The buyer pays (demo).
-6. The impact counter goes up, and everyone gets an email.
-7. The farmer asks the assistant "mera price theek hai?" and taps Read aloud.
+## Built with AI assistance
 
-## Numbers and assumptions
+We used Claude Code (Anthropic) as an AI coding assistant throughout the project. A substantial part of the implementation, across the frontend, backend, infrastructure and tests, was generated with it under our direction. We defined the product and its rules, made the design, security and cost decisions, reviewed and tested each change, and handled the AWS setup, deployment and verification. The assistant inside the product runs on Amazon Bedrock.
 
-- **CO₂:** 1.42 tonnes per tonne of residue burnt, derived from the national totals in Jain et al. 2014, *Aerosol and Air Quality Research* 14:422.
-- **PM2.5:** 8.3 kg per tonne of rice straw, from Gadde et al. 2009, *Environmental Pollution* 157:1554.
-- **Price bands and haulage rates** (₹150/tonne loading plus ₹6 per tonne-km) are demo assumptions in `backend/src/lib/pricing.ts`, not market data.
-- **Payments** are mocked. The plan for Razorpay is in [docs/DEPLOY_CHECKLIST.md](docs/DEPLOY_CHECKLIST.md#payments-plugging-in-a-gateway). Login is email + password; phone OTP comes later, because SMS in India needs DLT registration.
-- **Seed data** is fictional. Every organisation in it is marked "(demo)".
+Open-source libraries are used under their own licences, including Next.js, React, Tailwind CSS, Three.js, Capacitor and zod.
 
-## Repo layout
+## Team
 
-`frontend/` Next.js app · `backend/` Lambda handlers, zod validators, tests · `infra/` CDK stacks · `shared/` types · `scripts/` seed, smoke test, translate, make-admin, frontend-env · `docs/` PRD, architecture, plan, handoff
+Mohd Arham ([@arham0254A](https://github.com/arham0254A)) and Bhavarth Kokane ([@Bhavarth257](https://github.com/Bhavarth257)).
