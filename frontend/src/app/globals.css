@@ -23,7 +23,7 @@
   --color-sky-soft: #e0eaf4;
 
   --font-sans: var(--font-body), system-ui, sans-serif;
-  --font-display: var(--font-display-face), Georgia, serif;
+  --font-display: var(--font-body), system-ui, sans-serif;
 
   --radius-card: 14px;
 }
@@ -95,12 +95,14 @@ body {
 
 /* Size-specific tracking and leading: large display text tightens, body stays at 0. */
 .font-display {
-  letter-spacing: -0.015em;
-  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   font-optical-sizing: auto;
 }
 h1.font-display {
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 /* Translucent chrome: content scrolls under the navbar; a soft edge instead of a hard divider. */
@@ -168,50 +170,6 @@ h1.font-display {
       animation-timeline: scroll(root);
       animation-range: 0 100vh;
     }
-  }
-}
-/*
- * Desktop rich-motion tier (same query as lib/richMotion.ts): "How it works" pins and its cards
- * slide sideways while you scroll (ThreeUI/Oblo pattern, CSS-only). Phones keep the swipe cards.
- */
-@supports (animation-timeline: view()) {
-  @media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .how-pin {
-      height: 260vh;
-      view-timeline-name: --how;
-      animation: none; /* the pinned section shouldn't also fade */
-    }
-    .how-sticky {
-      position: sticky;
-      top: var(--nav-h);
-      height: calc(100vh - var(--nav-h));
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start; /* keep the eyebrow pill its own width */
-    }
-    .how-track {
-      display: flex !important;
-      gap: 2rem !important;
-      width: max-content;
-      overflow: visible !important;
-      animation: how-slide linear both;
-      animation-timeline: --how;
-      animation-range: contain 5% contain 95%;
-    }
-    .how-track > li {
-      width: min(40rem, 52vw) !important;
-    }
-    .how-track > li > div {
-      min-height: 26rem;
-      padding: 2.5rem;
-    }
-  }
-}
-@keyframes how-slide {
-  to {
-    /* end with the last card's right edge on the container's right edge */
-    transform: translateX(calc(-100% + min(72rem, 100vw) - 2rem));
   }
 }
 @keyframes fill-word {
@@ -329,4 +287,26 @@ h1.font-display {
 /* Tailwind v4 resets buttons/selects to cursor:default; restore the hand on everything clickable */
 @layer base {
   button:not(:disabled), select:not(:disabled), summary, [role='button'], input[type='checkbox'], input[type='radio'], label:has(> input[type='checkbox']) { cursor: pointer; }
+}
+
+/*
+ * Desktop "How it works": the three cards glide in from the right, one after another, as the row
+ * scrolls into view. Driven by scroll position (no pinning), so the page never stops scrolling.
+ */
+@supports (animation-timeline: view()) {
+  @media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .how-cards > li {
+      animation: card-in linear both;
+      animation-timeline: view();
+    }
+    .how-cards > li:nth-child(1) { animation-range: entry 0% cover 30%; }
+    .how-cards > li:nth-child(2) { animation-range: entry 15% cover 38%; }
+    .how-cards > li:nth-child(3) { animation-range: entry 30% cover 46%; }
+  }
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateX(35vw);
+  }
 }

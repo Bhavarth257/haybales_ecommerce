@@ -1,58 +1,63 @@
-// Screenshot every page at phone + desktop width against the static build (out/) and the local dev API.
-// Usage: node scripts-screens.mjs <outDir> [page,page...]   (needs npm run dev:db, dev:api, seed:local)
+// Screenshot pages at phone + desktop width against a running frontend and the local dev API.
+// Usage: node scripts-screens.mjs <outDir> [page,page...]
+// Needs `npm run dev` (web on :3000; the dev API only allows that origin) plus dev:db, dev:api, seed:local.
+// Each role gets a fresh account (local mode auto-confirms signup); the session is the API's httpOnly cookies.
 import { chromium } from 'playwright';
-import { createServer } from 'http';
-import { readFile } from 'fs/promises';
-import { extname, join } from 'path';
 
-const OUT = new URL('./out/', import.meta.url).pathname;
+const WEB = process.env.WEB_URL ?? 'http://localhost:3000';
+const API = process.env.API_URL ?? 'http://localhost:4000';
 const SHOTS = process.argv[2] ?? 'screens';
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.json': 'application/json', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.txt': 'text/plain' };
-const server = createServer(async (req, res) => {
-  let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  if (p.endsWith('/')) p += 'index.html';
-  try {
-    res.writeHead(200, { 'content-type': TYPES[extname(p)] ?? 'application/octet-stream' }).end(await readFile(join(OUT, p)));
-  } catch {
-    res.writeHead(404).end('not found');
-  }
-}).listen(3100);
 
-// [name, path, demo user or null]
+// [name, path, role or null]
 const PAGES = [
   ['landing', '/', null],
-  ['browse', '/listings/', 'buyer-1'],
-  ['listing', '/listing/?id=demo-listing-01', 'buyer-1'],
-  ['buyer', '/buyer/', 'buyer-1'],
-  ['order', '/order/?id=demo-order-1', 'buyer-1'],
-  ['profile', '/profile/', 'buyer-1'],
-  ['farmer', '/farmer/', 'farmer-1'],
-  ['farmer-new', '/farmer/new/', 'farmer-1'],
-  ['farmer-listing', '/farmer/listing/?id=demo-listing-01', 'farmer-1'],
   ['login', '/login/', null],
-  ['transporter', '/transporter/', 'transporter-1'],
-  ['admin', '/admin/', 'admin-1'],
-  ['help', '/help/', 'farmer-1'],
+  ['signup', '/signup/', null],
+  ['ops-login', '/ops-b28c4622bfa0/', null],
+  ['browse', '/listings/', 'buyer'],
+  ['listing', '/listing/?id=demo-listing-01', 'buyer'],
+  ['buyer', '/buyer/', 'buyer'],
+  ['profile', '/profile/', 'buyer'],
+  ['farmer', '/farmer/', 'farmer'],
+  ['farmer-new', '/farmer/new/', 'farmer'],
+  ['transporter', '/transporter/', 'transporter'],
+  ['help', '/help/', 'farmer'],
 ];
 const only = process.argv[3]?.split(',');
+const headers = { 'x-requested-with': 'parali' };
+
+async function logIn(ctx, role) {
+  const account = { email: `screens-${role}-${Date.now()}@example.com`, password: 'Screens-pass-1', name: `Screens ${role}`, role };
+  for (const [path, data] of [['/auth/signup', account], ['/auth/login', { email: account.email, password: account.password }]]) {
+    const res = await ctx.request.post(API + path, { data, headers });
+    if (!res.ok()) throw new Error(`${path} ${res.status()}: ${await res.text()}`);
+  }
+}
+
 const browser = await chromium.launch();
 for (const [w, h, tag] of [[390, 844, 'phone'], [1280, 800, 'desktop']]) {
-  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: tag === 'phone' ? 2 : 1 });
-  for (const [name, path, user] of PAGES) {
+  const contexts = {};
+  const ctxFor = async (role) => {
+    if (!contexts[role ?? '']) {
+      const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: tag === 'phone' ? 2 : 1 });
+      if (role) await logIn(ctx, role);
+      contexts[role ?? ''] = ctx;
+    }
+    return contexts[role ?? ''];
+  };
+  for (const [name, path, role] of PAGES) {
     if (only && !only.includes(name)) continue;
-    const page = await ctx.newPage();
+    const page = await (await ctxFor(role)).newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-    await page.addInitScript((u) => (u ? localStorage.setItem('ps.demoUser', u) : localStorage.removeItem('ps.demoUser')), user);
-    await page.goto(`http://localhost:3100${path}`, { waitUntil: 'networkidle' });
+    await page.goto(WEB + path, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
     await page.screenshot({ path: `${SHOTS}/${name}-${tag}.png`, fullPage: true });
     if (errors.length) console.log(`${name}/${tag} errors:`, errors.slice(0, 3).join(' | '));
     await page.close();
   }
-  await ctx.close();
+  for (const ctx of Object.values(contexts)) await ctx.close();
 }
 await browser.close();
-server.close();
 console.log('screens saved to', SHOTS);

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Noto_Sans, Noto_Serif_Display } from 'next/font/google';
+import { Noto_Sans } from 'next/font/google';
 import { Assistant } from '../components/ai/Assistant';
 import { Footer } from '../components/layout/Footer';
 import { Navbar } from '../components/layout/Navbar';
@@ -7,8 +7,8 @@ import { Providers } from '../components/Providers';
 import { contentSecurityPolicy, SITE_URL } from '../lib/config';
 import './globals.css';
 
-const body = Noto_Sans({ subsets: ['latin'], variable: '--font-body', display: 'swap' });
-const display = Noto_Serif_Display({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-display-face', display: 'swap' });
+// One plain sans for everything: headings are the same family, just heavier (Noto also covers the Indic scripts).
+const body = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -28,7 +28,7 @@ export const viewport: Viewport = { themeColor: '#2f5d34', width: 'device-width'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable}`}>
+    <html lang="en" className={body.variable}>
       {/* Dev mode needs eval for hot reload, so the policy only ships in production builds. */}
       {process.env.NODE_ENV === 'production' && (
         <head>

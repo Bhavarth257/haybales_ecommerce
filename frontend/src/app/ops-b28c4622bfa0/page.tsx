@@ -1,12 +1,12 @@
 'use client';
 import type { Listing, Order, Role, User } from '@parali/shared';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { ImpactCounter } from '../../components/landing/ImpactCounter';
-import { RequireRole } from '../../components/layout/RequireRole';
-import { Badge, Button, Card, Empty, ErrorBox, Loading, PageHeader, Pager, StatusBadge, Tabs, usePaged } from '../../components/ui';
+import { Badge, Button, Card, Empty, ErrorBox, Field, Input, Loading, PageHeader, Pager, StatusBadge, Tabs, usePaged } from '../../components/ui';
 import { useApi } from '../../hooks/useApi';
 import { api } from '../../lib/api';
+import { authError, useAuth } from '../../lib/auth';
 import { date, perTonne, rupees, tonnes } from '../../lib/format';
 import { Tx, useI18n } from '../../lib/i18n';
 
@@ -180,10 +180,81 @@ function Console() {
   );
 }
 
-export default function Page() {
+/** Email + password, then a TOTP code. First login shows a QR code to set up the authenticator app. */
+function AdminLogin() {
+  const { adminSignIn, verifyMfa } = useAuth();
+  const { t } = useI18n();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [step, setStep] = useState<'password' | 'code'>('password');
+  const [setup, setSetup] = useState<{ secret: string; qr: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = (fn: () => Promise<void>, wrong: string) => async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await fn();
+    } catch (err) {
+      setError(authError(err, wrong) || t('common.errors.generic'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const login = async () => {
+    const r = await adminSignIn(email, password);
+    if (!('mfa' in r)) return;
+    if (r.mfa === 'SETUP') {
+      // Loaded only here so the QR library never ships with the public pages.
+      const QR = await import('qrcode');
+      setSetup({ secret: r.secret, qr: await QR.toDataURL(r.otpauth, { margin: 1, width: 240 }) });
+    }
+    setPassword('');
+    setStep('code');
+  };
+
   return (
-    <RequireRole roles={['admin']}>
-      <Console />
-    </RequireRole>
+    <div className="mx-auto max-w-md">
+      <PageHeader title={<Tx k="admin.loginTitle" />} />
+      {error && <div className="mb-4"><ErrorBox message={error} /></div>}
+      <Card>
+        {step === 'password' ? (
+          <form className="space-y-4" onSubmit={submit(login, t('auth.wrongLogin'))}>
+            <Field label={t('auth.email')}>{(p) => <Input {...p} type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />}</Field>
+            <Field label={t('auth.password')}>{(p) => <Input {...p} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />}</Field>
+            <Button type="submit" full loading={busy}><Tx k="auth.submitLogin" /></Button>
+          </form>
+        ) : (
+          <form className="space-y-4" onSubmit={submit(() => verifyMfa(code), t('auth.wrongCode'))}>
+            {setup ? (
+              <>
+                <p>{t('admin.setupHint')}</p>
+                {/* eslint-disable-next-line @next/next/no-img-element -- data URL, nothing to optimise */}
+                <img src={setup.qr} alt={t('admin.qrAlt')} width={240} height={240} className="mx-auto rounded-lg border border-line bg-white" />
+                <p className="text-sm text-muted">{t('admin.secretLabel')}</p>
+                <p className="break-all rounded-lg bg-field-soft px-3 py-2 font-mono text-sm" translate="no">{setup.secret}</p>
+              </>
+            ) : (
+              <p className="text-muted">{t('admin.mfaHint')}</p>
+            )}
+            <Field label={t('admin.mfaCode')}>
+              {(p) => (
+                <Input {...p} inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required autoFocus value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
+              )}
+            </Field>
+            <Button type="submit" full loading={busy}><Tx k="auth.submitConfirm" /></Button>
+          </form>
+        )}
+      </Card>
+    </div>
   );
+}
+
+export default function Page() {
+  const { me, loading } = useAuth();
+  if (loading) return <Loading />;
+  return me?.role === 'admin' ? <Console /> : <AdminLogin />;
 }

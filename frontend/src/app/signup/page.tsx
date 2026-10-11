@@ -3,16 +3,15 @@ import type { Role } from '@parali/shared';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState, type FormEvent } from 'react';
-import { Button, Card, ErrorBox, Field, goToStep, Input, PageHeader, StepButtons, StepProgress } from '../../components/ui';
-import { HOME, TOO_MANY_NAMES, useAuth } from '../../lib/auth';
-import { DEMO_AUTH } from '../../lib/config';
+import { Button, ErrorBox, Field, goToStep, Input, PageHeader, StepButtons, StepProgress } from '../../components/ui';
+import { authError, HOME, useAuth } from '../../lib/auth';
 import { Tx, useI18n } from '../../lib/i18n';
 
 type SelfRole = Exclude<Role, 'admin'>;
 const ROLES: SelfRole[] = ['farmer', 'buyer', 'transporter'];
 
 function Signup() {
-  const { me, signUp, confirmSignUp } = useAuth();
+  const { me, signUp, confirmSignUp, resendCode, signIn } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
   const initial = useSearchParams().get('role') as SelfRole | null;
@@ -23,6 +22,7 @@ function Signup() {
   const [formStep, setFormStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resent, setResent] = useState(false);
 
   useEffect(() => {
     if (me) router.replace(HOME[me.role]);
@@ -35,7 +35,7 @@ function Signup() {
     try {
       await fn();
     } catch (e) {
-      setError(TOO_MANY_NAMES.includes((e as Error).name) ? t('common.errors.tooMany') : (e as Error).message || t('common.errors.generic'));
+      setError(authError(e, t('auth.wrongCode')) || t('common.errors.generic'));
     } finally {
       setBusy(false);
     }
@@ -45,19 +45,12 @@ function Signup() {
   const onFormSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (formStep === 0) return goToStep(setFormStep, 1);
-    run(async () => (await signUp({ role, ...form, phone: form.phone || undefined }), setStep('confirm')));
+    run(async () => {
+      // Local dev mode auto-confirms, so the account can log in straight away.
+      if ((await signUp({ role, ...form, phone: form.phone || undefined })) === 'login') await signIn(form.email, form.password);
+      else setStep('confirm');
+    });
   };
-
-  if (DEMO_AUTH)
-    return (
-      <div className="mx-auto max-w-md">
-        <PageHeader title={<Tx k="auth.signupTitle" />} />
-        <Card>
-          <p className="text-muted">{t('auth.demoHint')}</p>
-          <Link href="/login/" className="mt-2 inline-flex min-h-12 items-center font-semibold text-field underline">{t('common.nav.login')}</Link>
-        </Card>
-      </div>
-    );
 
   return (
     <div className="mx-auto max-w-md">
@@ -104,6 +97,10 @@ function Signup() {
           <p className="text-muted">{t('auth.confirmHint', { email: form.email })}</p>
           <Field label={t('auth.code')}>{(p) => <Input {...p} inputMode="numeric" autoComplete="one-time-code" required value={code} onChange={(e) => setCode(e.target.value)} />}</Field>
           <Button type="submit" full loading={busy}><Tx k="auth.submitConfirm" /></Button>
+          <Button type="button" variant="ghost" full disabled={busy} onClick={() => run(async () => (await resendCode(form.email), setResent(true)))}>
+            <Tx k="auth.resend" />
+          </Button>
+          {resent && <p className="text-center text-sm text-muted" role="status">{t('auth.resent')}</p>}
         </form>
       )}
       <p className="mt-6 text-center text-muted">

@@ -9,8 +9,7 @@ interface State<T> {
 }
 
 /** GET `path` (skip when null). Returns data/error/loading and reload(). */
-export function useApi<T>(path: string | null, opts: { auth?: boolean } = {}) {
-  const { auth } = opts;
+export function useApi<T>(path: string | null) {
   const [state, setState] = useState<State<T>>({ path: null, data: null, error: null });
   const [reloading, setReloading] = useState(false);
   const latest = useRef(path);
@@ -19,12 +18,12 @@ export function useApi<T>(path: string | null, opts: { auth?: boolean } = {}) {
   const fetchNow = useCallback(async () => {
     if (!path) return;
     try {
-      const data = await api<T>(path, { auth });
+      const data = await api<T>(path);
       if (latest.current === path) setState({ path, data, error: null });
     } catch (e) {
       if (latest.current === path) setState((s) => ({ path, data: s.path === path ? s.data : null, error: (e as Error).message }));
     }
-  }, [path, auth]);
+  }, [path]);
 
   useEffect(() => {
     latest.current = path;

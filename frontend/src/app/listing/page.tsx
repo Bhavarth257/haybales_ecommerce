@@ -26,7 +26,7 @@ function Spec({ label, children }: { label: string; children: React.ReactNode })
 function FairBand({ listing }: { listing: Listing }) {
   const { t } = useI18n();
   const { state, lat, lng } = listing.place;
-  const { data } = useApi<PriceBand>(`/price-band?${new URLSearchParams({ state, lat: String(lat), lng: String(lng) })}`, { auth: false });
+  const { data } = useApi<PriceBand>(`/price-band?${new URLSearchParams({ state, lat: String(lat), lng: String(lng) })}`);
   if (!data) return null;
   const p = listing.pricePerTonne;
   const verdict = p < data.min ? 'fairBelow' : p > data.max ? 'fairAbove' : 'fairWithin';
@@ -58,7 +58,7 @@ function ListingDetail() {
   const id = useSearchParams().get('id');
   // Pass the buyer's location so the server computes distance + transport (same numbers as search).
   const here = me?.place ? `?lat=${me.place.lat}&lng=${me.place.lng}` : '';
-  const { data: l, error, loading, reload } = useApi<Listing>(id && !authLoading ? `/listings/${encodeURIComponent(id)}${here}` : null, { auth: false });
+  const { data: l, error, loading, reload } = useApi<Listing>(id && !authLoading ? `/listings/${encodeURIComponent(id)}${here}` : null);
   const [tab, setTab] = useState<Tab>('details');
 
   if (!id) return <ErrorBox message={t('common.errors.generic')} />;

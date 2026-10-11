@@ -6,8 +6,6 @@ import { CountUp } from './CountUp';
 import { useI18n, Tx } from '../../lib/i18n';
 import { ErrorBox } from '../ui';
 
-const API_OPTS = { auth: false } as const;
-
 function Tile({ label, value, unit }: { label: string; value: React.ReactNode; unit: string }) {
   return (
     <div className="rounded-card border border-line bg-surface p-4 sm:p-5">
@@ -33,7 +31,7 @@ function Skeleton() {
 
 export function ImpactCounter() {
   const { t } = useI18n();
-  const { data, error, loading, reload } = useApi<ImpactStats>('/impact', API_OPTS);
+  const { data, error, loading, reload } = useApi<ImpactStats>('/impact');
 
   return (
     <section aria-label={t('landing.impact.title')} className="reveal mt-14 sm:mt-20 lg:mt-32">

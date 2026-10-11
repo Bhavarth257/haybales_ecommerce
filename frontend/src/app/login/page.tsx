@@ -1,68 +1,90 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, type FormEvent } from 'react';
 import { Button, Card, ErrorBox, Field, Input, PageHeader } from '../../components/ui';
-import { DEMO_USERS, HOME, TOO_MANY_NAMES, useAuth } from '../../lib/auth';
-import { DEMO_AUTH } from '../../lib/config';
+import { authError, HOME, useAuth } from '../../lib/auth';
 import { Tx, useI18n } from '../../lib/i18n';
 
+type Mode = 'login' | 'forgot' | 'reset';
+
 function Login() {
-  const { me, signIn, loginDemo } = useAuth();
+  const { me, signIn, forgotPassword, resetPassword } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
   // Only same-site paths, so ?next= can't send people to another website.
   const raw = useSearchParams().get('next');
   const next = raw?.startsWith('/') && !raw.startsWith('//') ? raw : null;
+  const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [busy, setBusy] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (me) router.replace(next ?? HOME[me.role]);
   }, [me, next, router]);
 
-  const run = async (key: string, fn: () => Promise<void>) => {
-    setBusy(key);
+  const go = (m: Mode) => {
+    setMode(m);
     setError(null);
+    setPassword('');
+    setCode('');
+  };
+  const submit = (fn: () => Promise<void>, wrong: string) => async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    setNotice(null);
     try {
       await fn();
-    } catch (e) {
-      setError(TOO_MANY_NAMES.includes((e as Error).name) ? t('common.errors.tooMany') : (e as Error).message || t('common.errors.generic'));
+    } catch (err) {
+      setError(authError(err, wrong) || t('common.errors.generic'));
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   };
+  const emailField = (
+    <Field label={t('auth.email')}>{(p) => <Input {...p} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />}</Field>
+  );
 
   return (
     <div className="mx-auto max-w-md">
-      <PageHeader title={<Tx k="auth.loginTitle" />} />
+      <PageHeader title={<Tx k={mode === 'login' ? 'auth.loginTitle' : 'auth.forgotTitle'} />} />
       {error && <div className="mb-4"><ErrorBox message={error} /></div>}
-      {DEMO_AUTH ? (
-        <Card>
-          <h2 className="font-semibold"><Tx k="auth.demoTitle" /></h2>
-          <p className="mb-4 text-sm text-muted">{t('auth.demoHint')}</p>
-          <ul className="space-y-2">
-            {DEMO_USERS.map((u) => (
-              <li key={u.id}>
-                <Button variant="secondary" full loading={busy === u.id} onClick={() => run(u.id, () => loginDemo(u.id))} className="justify-between">
-                  <span>{u.name}</span>
-                  <span className="text-sm font-normal text-muted">{t(`common.roles.${u.role}`)}</span>
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : (
-        <Card>
-          <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run('login', () => signIn(email, password)))}>
-            <Field label={t('auth.email')}>{(p) => <Input {...p} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />}</Field>
+      {notice && <p className="mb-4 rounded-xl border border-field/30 bg-field-soft px-4 py-3" role="status">{notice}</p>}
+      <Card>
+        {mode === 'login' ? (
+          <form className="space-y-4" onSubmit={submit(() => signIn(email, password), t('auth.wrongLogin'))}>
+            {emailField}
             <Field label={t('auth.password')}>{(p) => <Input {...p} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />}</Field>
-            <Button type="submit" full loading={busy === 'login'}><Tx k="auth.submitLogin" /></Button>
+            <Button type="submit" full loading={busy}><Tx k="auth.submitLogin" /></Button>
+            <Button type="button" variant="ghost" full onClick={() => go('forgot')}><Tx k="auth.forgot" /></Button>
           </form>
-        </Card>
-      )}
+        ) : mode === 'forgot' ? (
+          <form className="space-y-4" onSubmit={submit(async () => (await forgotPassword(email), go('reset')), t('common.errors.generic'))}>
+            <p className="text-muted">{t('auth.forgotHint')}</p>
+            {emailField}
+            <Button type="submit" full loading={busy}><Tx k="auth.sendCode" /></Button>
+            <Button type="button" variant="ghost" full onClick={() => go('login')}><Tx k="auth.backToLogin" /></Button>
+          </form>
+        ) : (
+          <form
+            className="space-y-4"
+            onSubmit={submit(async () => (await resetPassword(email, code, password), go('login'), setNotice(t('auth.resetDone'))), t('auth.wrongCode'))}
+          >
+            <p className="text-muted">{t('auth.confirmHint', { email })}</p>
+            <Field label={t('auth.code')}>{(p) => <Input {...p} inputMode="numeric" autoComplete="one-time-code" required value={code} onChange={(e) => setCode(e.target.value.trim())} />}</Field>
+            <Field label={t('auth.newPassword')} hint={t('auth.passwordHint')}>
+              {(p) => <Input {...p} type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />}
+            </Field>
+            <Button type="submit" full loading={busy}><Tx k="auth.submitReset" /></Button>
+            <Button type="button" variant="ghost" full onClick={() => go('login')}><Tx k="auth.backToLogin" /></Button>
+          </form>
+        )}
+      </Card>
       <p className="mt-6 text-center text-muted">
         {t('auth.noAccount')}{' '}
         <Link href="/signup/" className="inline-flex min-h-12 items-center font-semibold text-field underline underline-offset-4">{t('common.nav.signup')}</Link>
