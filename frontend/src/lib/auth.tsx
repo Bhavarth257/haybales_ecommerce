@@ -12,6 +12,9 @@ export interface SignUpInput {
   email: string;
   phone?: string;
   password: string;
+  dob: string;
+  adult: boolean;
+  consent: boolean;
 }
 
 /** Admin login result: done, or a TOTP step (with the setup secret on first login). */

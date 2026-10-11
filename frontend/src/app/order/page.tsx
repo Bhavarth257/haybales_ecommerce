@@ -8,7 +8,7 @@ import { Button, Card, ErrorBox, Loading, StatusBadge, Tabs } from '../../compon
 import { useApi } from '../../hooks/useApi';
 import { api } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
-import { date, km, perTonne, rupees, tonnes } from '../../lib/format';
+import { date, km, maskPhone, perTonne, rupees, tonnes } from '../../lib/format';
 import { Tx, useI18n } from '../../lib/i18n';
 
 const H2 = ({ k }: { k: string }) => <Tx k={k} as="h2" className="mb-3 font-display text-xl" />;
@@ -41,7 +41,7 @@ function Contact({ role, name, phone }: { role: string; name?: string; phone?: s
       </div>
       {phone ? (
         <a href={`tel:${phone}`} className="inline-flex min-h-12 items-center rounded-xl border border-line px-4 font-semibold text-field hover:border-ink/40">
-          {t('order.call', { phone })}
+          {t('order.call', { phone: maskPhone(phone) })}
         </a>
       ) : name ? (
         <span className="text-sm text-muted">{t('order.noPhone')}</span>

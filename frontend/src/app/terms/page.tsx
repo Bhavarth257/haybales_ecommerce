@@ -17,6 +17,13 @@ export default function Page() {
           do with your data.
         </p>
 
+        <h2 className={h2}>Who can use it</h2>
+        <p>
+          You must be 18 or older and able to make a binding contract under Indian law. At signup you give your date of birth and confirm you are 18 or older.
+          For someone younger, a parent or guardian can write to us, and the team decides whether to set up an account after checking the guardian&apos;s consent.
+          If we find an account belongs to someone under 18 without that consent, we close it.
+        </p>
+
         <h2 className={h2}>What Parali Setu is</h2>
         <p>
           Parali Setu is a marketplace. It helps farmers, buyers and transporters find each other and agree a deal. We are not the seller or the buyer of any
@@ -28,6 +35,10 @@ export default function Page() {
           The farmer sets an asking price per tonne. A buyer sends an offer, and the farmer can accept it, reject it or send back one counter price. When an
           offer is made, the app fixes the transport cost for that trip. The delivered price the buyer pays is the stubble price plus that transport cost, and
           it does not change after the offer is accepted.
+        </p>
+        <p>
+          The price band the app shows is guidance from recent prices and distance. It is not a guarantee that anyone will buy or sell at that price, and you
+          are free to agree a different one.
         </p>
 
         <h2 className={h2}>What each person agrees to do</h2>
@@ -47,7 +58,14 @@ export default function Page() {
         <h2 className={h2}>Cancelling an order</h2>
         <p>
           The farmer or the buyer can cancel an order until a transporter takes the job. The tonnes then go back on the listing. After pickup is arranged,
-          write to us through the <Link href="/help/" className={a}>Help page</Link> and we will try to sort it out with everyone involved.
+          write to us through the <Link href="/help/" className={a}>Help page</Link> and we will try to sort it out with everyone involved. See{' '}
+          <Link href="/refund/" className={a}>Refund and cancellation</Link> and <Link href="/shipping/" className={a}>Shipping and delivery</Link>.
+        </p>
+
+        <h2 className={h2}>Closing your account</h2>
+        <p>
+          You can delete your account from the Profile page once none of your orders is in progress. The <Link href="/privacy/" className={a}>Privacy policy</Link>{' '}
+          says what is removed and what is kept.
         </p>
 
         <h2 className={h2}>What admins can do</h2>
@@ -56,11 +74,14 @@ export default function Page() {
           breaks these terms.
         </p>
 
-        <h2 className={h2}>What you must not do</h2>
+        <h2 className={h2}>Acceptable use</h2>
+        <p>Use Parali Setu only to buy, sell and carry crop stubble honestly. You must not:</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>Post fake listings or offers, or pretend to be someone else.</li>
           <li>Scrape the site or copy other users&apos; details, such as phone numbers, for any use outside an order.</li>
           <li>Try to break into accounts, overload the service or get around its limits.</li>
+          <li>Arrange a deal through Parali Setu and then pressure the other side to drop the agreed terms.</li>
+          <li>Upload photos or text that are abusive, misleading or not yours to share.</li>
           <li>Use the marketplace for anything illegal.</li>
         </ul>
 

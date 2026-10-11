@@ -118,7 +118,7 @@ export default function BrowsePage() {
               {(p) => (
                 <Select {...p} value={state} onChange={pick(setState)}>
                   <option value="">{t('buyer.browse.anyState')}</option>
-                  {STATES.filter((s) => s !== 'Other').map((s) => (
+                  {STATES.map((s) => (
                     <option key={s}>{s}</option>
                   ))}
                 </Select>

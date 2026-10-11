@@ -18,4 +18,25 @@ export const DISTRICTS: Record<string, Record<string, [number, number]>> = {
     Sonipat: [28.993, 77.016], Yamunanagar: [30.129, 77.267],
   },
 };
-export const STATES = ['Punjab', 'Haryana', 'Uttar Pradesh', 'Rajasthan', 'Madhya Pradesh', 'Bihar', 'Other'];
+// Punjab and Haryana first (where most stubble is burned), then every other state and union territory A–Z.
+export const STATES = [
+  'Punjab', 'Haryana',
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Himachal Pradesh',
+  'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland',
+  'Odisha', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Jammu and Kashmir',
+  'Ladakh', 'Lakshadweep', 'Puducherry',
+];
+
+/** Fallback point per state (capital or a central city) when the district isn't in DISTRICTS and GPS isn't shared. Distances are then approximate. */
+export const STATE_CENTRES: Record<string, [number, number]> = {
+  Punjab: [30.901, 75.857], Haryana: [28.895, 76.607], 'Andhra Pradesh': [16.51, 80.52], 'Arunachal Pradesh': [27.08, 93.61],
+  Assam: [26.14, 91.79], Bihar: [25.59, 85.14], Chhattisgarh: [21.25, 81.63], Goa: [15.49, 73.83], Gujarat: [23.22, 72.65],
+  'Himachal Pradesh': [31.1, 77.17], Jharkhand: [23.34, 85.31], Karnataka: [12.97, 77.59], Kerala: [8.52, 76.94],
+  'Madhya Pradesh': [23.26, 77.41], Maharashtra: [18.52, 73.86], Manipur: [24.82, 93.94], Meghalaya: [25.58, 91.89],
+  Mizoram: [23.73, 92.72], Nagaland: [25.67, 94.11], Odisha: [20.3, 85.82], Rajasthan: [26.91, 75.79], Sikkim: [27.33, 88.61],
+  'Tamil Nadu': [13.08, 80.27], Telangana: [17.39, 78.49], Tripura: [23.83, 91.29], 'Uttar Pradesh': [26.85, 80.95],
+  Uttarakhand: [30.32, 78.03], 'West Bengal': [22.57, 88.36], 'Andaman and Nicobar Islands': [11.62, 92.73],
+  Chandigarh: [30.73, 76.78], 'Dadra and Nagar Haveli and Daman and Diu': [20.4, 72.83], Delhi: [28.61, 77.21],
+  'Jammu and Kashmir': [34.08, 74.8], Ladakh: [34.15, 77.58], Lakshadweep: [10.57, 72.64], Puducherry: [11.94, 79.81],
+};

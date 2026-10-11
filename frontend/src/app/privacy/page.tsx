@@ -21,6 +21,11 @@ export default function Page() {
         <h2 className={h2}>What we collect</h2>
         <ul className="list-disc space-y-2 pl-5">
           <li>Your account: name, email, phone number (optional), role (farmer, buyer or transporter) and organisation name if you add one.</li>
+          <li>
+            Your date of birth. We use it to check that you are 18 or older, and an admin looks at it when a parent or guardian asks us to set up an account.
+            Other users never see it.
+          </li>
+          <li>Which version of the Terms and this policy you agreed to at signup, and when.</li>
           <li>Your place: village, district and state, and a map point. Public listings show the point rounded to about 1 km, so the exact farm stays hidden.</li>
           <li>What you do on the marketplace: listings, stubble photos, offers, counter offers, orders and delivery status.</li>
           <li>Messages you send through the Help form. They reach our team by email.</li>
@@ -56,17 +61,40 @@ export default function Page() {
           there is no cookie banner.
         </p>
 
-        <h2 className={h2}>How long we keep it</h2>
+        <h2 className={h2}>Children</h2>
         <p>
-          We keep your data while your account is open. If you ask us to delete your account, we remove your profile, listings and photos. We may keep records
-          of completed orders, because the other party relies on them and the law may require us to keep them.
+          You must be 18 or older to sign up. Under the Digital Personal Data Protection Act, 2023, anyone under 18 is a child, and we need verifiable consent
+          from a parent or guardian before we handle a child&apos;s data. So signup refuses anyone under 18. A parent or guardian can write to us, and the team
+          sets up the account by hand after checking the guardian&apos;s identity and consent.
+        </p>
+
+        <h2 className={h2}>How long we keep it, and deleting your account</h2>
+        <p>
+          We keep your data while your account is open. You can delete your account yourself from the Profile page. When you do, we close your open listings and
+          offers, replace your name with &quot;Deleted user&quot;, remove your email, phone, place, organisation and date of birth, and delete your login.
+          Closed listings and their photos are no longer shown to anyone; write to us if you want the photos erased as well.
+        </p>
+        <p>
+          You can&apos;t delete your account while an order is in progress, because the other people in it are waiting on you. Finish or cancel it first.
+          Completed and cancelled orders stay, with the names and phone numbers they were made with, because the other party relies on them and the law may
+          require us to keep them. We also keep the record of what you agreed to at signup.
         </p>
 
         <h2 className={h2}>Your rights</h2>
         <p>
           Under India&apos;s Digital Personal Data Protection Act, 2023 you can ask to see the data we hold about you, correct it, or delete it. You can change
-          your name, phone, organisation and place yourself on your Profile page. If you have a complaint, write to us first. If our answer does not settle it,
+          your name, phone, organisation and place yourself on your Profile page, and delete your account there too. If you have a complaint, write to us first. If our answer does not settle it,
           you can go to the Data Protection Board of India.
+        </p>
+
+        <h2 className={h2}>Grievance Officer</h2>
+        <p>
+          Parali Setu Team{TEAM_EMAIL ? (
+            <>
+              , <a href={`mailto:${TEAM_EMAIL}`} className={a}>{TEAM_EMAIL}</a>
+            </>
+          ) : null}
+          . We acknowledge a complaint within 72 hours and resolve it within 30 days. Details are on the <Link href="/contact/" className={a}>Contact page</Link>.
         </p>
 
         <h2 className={h2}>Contact</h2>

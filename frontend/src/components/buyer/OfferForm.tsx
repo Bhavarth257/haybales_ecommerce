@@ -104,14 +104,14 @@ export function OfferForm({ listing }: { listing: Listing }) {
             hint={t('buyer.detail.tonnesHint', { max: fmtTonnes(listing.tonnesLeft) })}
             error={touched && qtyBad ? t('buyer.detail.tonnesError', { max: listing.tonnesLeft }) : undefined}
           >
-            {(f) => <Input {...f} type="number" inputMode="decimal" min={0.5} max={listing.tonnesLeft} step={0.5} required value={qty} onChange={(e) => setQty(e.target.value)} />}
+            {(f) => <Input {...f} type="number" inputMode="decimal" min={0.5} max={listing.tonnesLeft} step={0.5} required placeholder={t('common.ph.tonnes')} value={qty} onChange={(e) => setQty(e.target.value)} />}
           </Field>
           <Field
             label={t('buyer.detail.price')}
             hint={t('buyer.detail.priceHint', { price: perTonne(listing.pricePerTonne) })}
             error={touched && priceBad ? t('buyer.detail.priceError') : undefined}
           >
-            {(f) => <Input {...f} type="number" inputMode="numeric" min={100} max={20000} step={10} required value={price} onChange={(e) => setPrice(e.target.value)} />}
+            {(f) => <Input {...f} type="number" inputMode="numeric" min={100} max={20000} step={10} required placeholder={t('common.ph.price')} value={price} onChange={(e) => setPrice(e.target.value)} />}
           </Field>
         </div>
         <Field label={t('buyer.detail.message')} hint={t('buyer.detail.messageHint')}>

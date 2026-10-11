@@ -12,7 +12,7 @@
   "phoneHint": "Shared only with the other people on your orders.",
   "phoneError": "Enter a 10-digit mobile number, e.g. 98765 43210.",
   "org": "Business name",
-  "orgHint": "Shown to farmers on your offers, e.g. Malwa Biomass Power.",
+  "orgHint": "Shown to farmers on your offers.",
   "location": "Location",
   "locationBuyer": "Delivery location",
   "whyBuyer": "Buyers need a delivery location to make offers. We use it to work out distance and transport cost.",
@@ -21,5 +21,9 @@
   "placeError": "Pick a state and district, or use your location.",
   "save": "Save profile",
   "saved": "Profile saved.",
-  "nameError": "Enter your name."
+  "nameError": "Enter your name.",
+  "deleteTitle": "Delete my account",
+  "deleteHint": "This closes your open listings and offers, removes your name, email, phone and place, and logs you out. You can't undo it. Completed orders stay on record for the other people in them.",
+  "deleteType": "Type DELETE to confirm",
+  "deleteButton": "Delete my account"
 }

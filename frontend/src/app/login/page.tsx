@@ -47,7 +47,7 @@ function Login() {
     }
   };
   const emailField = (
-    <Field label={t('auth.email')}>{(p) => <Input {...p} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />}</Field>
+    <Field label={t('auth.email')}>{(p) => <Input {...p} type="email" autoComplete="email" required placeholder={t('common.ph.email')} value={email} onChange={(e) => setEmail(e.target.value)} />}</Field>
   );
 
   return (
@@ -76,9 +76,9 @@ function Login() {
             onSubmit={submit(async () => (await resetPassword(email, code, password), go('login'), setNotice(t('auth.resetDone'))), t('auth.wrongCode'))}
           >
             <p className="text-muted">{t('auth.confirmHint', { email })}</p>
-            <Field label={t('auth.code')}>{(p) => <Input {...p} inputMode="numeric" autoComplete="one-time-code" required value={code} onChange={(e) => setCode(e.target.value.trim())} />}</Field>
-            <Field label={t('auth.newPassword')} hint={t('auth.passwordHint')}>
-              {(p) => <Input {...p} type="password" autoComplete="new-password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} />}
+            <Field label={t('auth.code')}>{(p) => <Input {...p} inputMode="numeric" autoComplete="one-time-code" required placeholder={t('common.ph.code')} value={code} onChange={(e) => setCode(e.target.value.trim())} />}</Field>
+            <Field label={t('auth.newPassword')}>
+              {(p) => <Input {...p} type="password" autoComplete="new-password" minLength={8} required placeholder={t('auth.passwordHint')} value={password} onChange={(e) => setPassword(e.target.value)} />}
             </Field>
             <Button type="submit" full loading={busy}><Tx k="auth.submitReset" /></Button>
             <Button type="button" variant="ghost" full onClick={() => go('login')}><Tx k="auth.backToLogin" /></Button>

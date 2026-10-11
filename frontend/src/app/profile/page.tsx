@@ -1,9 +1,11 @@
 'use client';
 import type { Place, User } from '@parali/shared';
+import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { isCompletePlace, PlaceInput } from '../../components/listings/PlaceInput';
 import { Badge, Button, Card, ErrorBox, Field, Input, LinkButton, Loading, PageHeader } from '../../components/ui';
 import { api } from '../../lib/api';
+import { maskPhone } from '../../lib/format';
 import { useAuth } from '../../lib/auth';
 import { Tx, useI18n } from '../../lib/i18n';
 
@@ -20,6 +22,8 @@ function ProfileForm({ me }: { me: User }) {
   const { refresh, logout } = useAuth();
   const [name, setName] = useState(me.name);
   const [phone, setPhone] = useState(me.phone ?? '');
+  // The saved number starts masked; Show reveals it for editing.
+  const [showPhone, setShowPhone] = useState(!me.phone);
   const [org, setOrg] = useState(me.org ?? '');
   const [place, setPlace] = useState<Partial<Place>>(me.place ?? {});
   const [touched, setTouched] = useState(false);
@@ -64,14 +68,25 @@ function ProfileForm({ me }: { me: User }) {
           <Tx k="profile.details" as="h2" className="mb-4 font-display text-xl" />
           <div className="space-y-4">
             <Field label={t('profile.name')} error={touched && !nameOk ? t('profile.nameError') : undefined}>
-              {(p) => <Input {...p} required autoComplete="name" maxLength={80} value={name} onChange={(e) => setName(e.target.value)} />}
+              {(p) => <Input {...p} required autoComplete="name" maxLength={80} placeholder={t('common.ph.name')} value={name} onChange={(e) => setName(e.target.value)} />}
             </Field>
             <Field label={t('profile.phone')} hint={t('profile.phoneHint')} error={touched && !phoneOk ? t('profile.phoneError') : undefined}>
-              {(p) => <Input {...p} type="tel" inputMode="tel" autoComplete="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} />}
+              {(p) =>
+                showPhone ? (
+                  <Input {...p} type="tel" inputMode="tel" autoComplete="tel" placeholder={t('common.ph.phone')} value={phone} onChange={(e) => setPhone(e.target.value)} />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Input {...p} readOnly value={maskPhone(phone)} />
+                    <Button type="button" variant="secondary" onClick={() => setShowPhone(true)}>
+                      {t('common.show')}
+                    </Button>
+                  </div>
+                )
+              }
             </Field>
             {hasOrg && (
               <Field label={t('profile.org')} hint={t('profile.orgHint')}>
-                {(p) => <Input {...p} autoComplete="organization" maxLength={120} value={org} onChange={(e) => setOrg(e.target.value)} />}
+                {(p) => <Input {...p} autoComplete="organization" maxLength={120} placeholder={t('common.ph.org')} value={org} onChange={(e) => setOrg(e.target.value)} />}
               </Field>
             )}
           </div>
@@ -124,6 +139,61 @@ function ProfileForm({ me }: { me: User }) {
   );
 }
 
+/** DPDP right to erasure. Typing DELETE is the confirmation; the server refuses while an order is in progress. */
+function DeleteAccount() {
+  const { t } = useI18n();
+  const { logout } = useAuth();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const remove = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      await api('/me/delete', { body: { confirm: typed } });
+      await logout();
+      router.replace('/');
+    } catch (err) {
+      setError((err as Error).message);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card className="mt-6 max-w-2xl">
+      <Tx k="profile.deleteTitle" as="h2" className="font-display text-xl" />
+      <p className="mb-4 mt-1 text-muted">{t('profile.deleteHint')}</p>
+      {!open ? (
+        <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+          <Tx k="profile.deleteButton" />
+        </Button>
+      ) : (
+        <form onSubmit={remove} className="space-y-4">
+          <Field label={t('profile.deleteType')}>
+            {(p) => <Input {...p} autoComplete="off" autoCapitalize="characters" spellCheck={false} value={typed} onChange={(e) => setTyped(e.target.value)} />}
+          </Field>
+          {error && <ErrorBox message={error} />}
+          <div className="flex flex-wrap gap-3">
+            <Button type="submit" variant="danger" loading={busy} disabled={typed !== 'DELETE'}>
+              <Tx k="profile.deleteButton" />
+            </Button>
+            <Button type="button" variant="ghost" disabled={busy} onClick={() => {
+                setOpen(false);
+                setTyped('');
+              }}>
+              <Tx k="common.actions.cancel" />
+            </Button>
+          </div>
+        </form>
+      )}
+    </Card>
+  );
+}
+
 // Not wrapped in RequireRole: auth.refresh() after saving flips `loading`, and RequireRole would
 // unmount the form (losing the "saved" message). `me` stays set during a refresh, so gate on it here.
 export default function ProfilePage() {
@@ -144,6 +214,7 @@ export default function ProfilePage() {
     <>
       <PageHeader title={<Tx k="profile.title" />} sub={t('profile.sub')} />
       <ProfileForm me={me} />
+      {me.role !== 'admin' && <DeleteAccount />}
     </>
   );
 }
